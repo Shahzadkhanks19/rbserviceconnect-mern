@@ -1,7 +1,6 @@
 import { BriefcaseBusiness, ChevronDown, Clock3, FileCheck2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { jobs } from '../../data/jobs.js';
 import { apiRequest } from '../../lib/api.js';
 
 const labels={applied:'Applied',reviewing:'Under review',shortlisted:'Shortlisted',interview:'Interview',offered:'Offer',hired:'Hired',rejected:'Rejected',withdrawn:'Withdrawn'};
@@ -9,8 +8,8 @@ const statusStyles={applied:'bg-slate-100 text-slate-700',reviewing:'bg-blue-50 
 
 export default function CandidateApplicationsPage(){
   const [searchParams]=useSearchParams();const requestedJob=searchParams.get('job')||'';
-  const [applications,setApplications]=useState(null);const [filter,setFilter]=useState('all');const [form,setForm]=useState({jobSlug:requestedJob,coverLetter:''});const [message,setMessage]=useState('');const [submitting,setSubmitting]=useState(false);const [showApply,setShowApply]=useState(Boolean(requestedJob));
-  useEffect(()=>{let cancelled=false;apiRequest('/candidate/applications').then((r)=>{if(!cancelled)setApplications(r.applications||[]);}).catch((e)=>{if(!cancelled)setMessage(e.message);});return()=>{cancelled=true;};},[]);
+  const [applications,setApplications]=useState(null);const [jobs,setJobs]=useState([]);const [filter,setFilter]=useState('all');const [form,setForm]=useState({jobSlug:requestedJob,coverLetter:''});const [message,setMessage]=useState('');const [submitting,setSubmitting]=useState(false);const [showApply,setShowApply]=useState(Boolean(requestedJob));
+  useEffect(()=>{let cancelled=false;Promise.all([apiRequest('/candidate/applications'),apiRequest('/public/jobs')]).then(([apps,jobsResponse])=>{if(!cancelled){setApplications(apps.applications||[]);setJobs(jobsResponse.jobs||[]);}}).catch((e)=>!cancelled&&setMessage(e.message));return()=>{cancelled=true;};},[]);
   const visible=useMemo(()=>!applications?[]:filter==='all'?applications:applications.filter((item)=>item.status===filter),[applications,filter]);
   const apply=async(e)=>{e.preventDefault();if(!form.jobSlug){setMessage('Choose a job first.');return;}setSubmitting(true);setMessage('');try{const r=await apiRequest('/candidate/applications',{method:'POST',body:JSON.stringify(form)});setApplications((current)=>[r.application,...(current||[])]);setForm({jobSlug:'',coverLetter:''});setShowApply(false);setMessage(r.message);}catch(err){setMessage(err.message);}finally{setSubmitting(false);}};
   const withdraw=async(id)=>{try{const r=await apiRequest(`/candidate/applications/${id}/withdraw`,{method:'PATCH'});setApplications((current)=>current.map((item)=>item._id===id?r.application:item));setMessage(r.message);}catch(err){setMessage(err.message);}};
