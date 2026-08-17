@@ -1,0 +1,10 @@
+export const jobs = [
+  { slug:'senior-frontend-developer', title:'Senior Frontend Developer', company:'Northstar Digital', initials:'ND', location:'Bengaluru, Karnataka', workplace:'Hybrid', type:'Full-time', experience:'4–7 years', salary:'₹18L – ₹26L', category:'Technology', posted:'2 days ago', skills:['React','JavaScript','Tailwind CSS','REST APIs','Accessibility'] },
+  { slug:'product-designer', title:'Product Designer', company:'Aster Labs', initials:'AL', location:'India', workplace:'Remote', type:'Full-time', experience:'3–5 years', salary:'₹14L – ₹20L', category:'Design', posted:'1 day ago', skills:['Figma','UX Research','Prototyping','Design Systems'] },
+  { slug:'growth-marketing-manager', title:'Growth Marketing Manager', company:'Verde Commerce', initials:'VC', location:'Gurugram, Haryana', workplace:'On-site', type:'Full-time', experience:'5–8 years', salary:'₹16L – ₹24L', category:'Marketing', posted:'3 days ago', skills:['Performance Marketing','Analytics','SEO','Campaign Strategy'] },
+  { slug:'recruitment-executive', title:'Recruitment Executive', company:'PeopleGrid', initials:'PG', location:'Jaipur, Rajasthan', workplace:'On-site', type:'Full-time', experience:'1–3 years', salary:'₹3L – ₹5L', category:'Human Resources', posted:'Today', skills:['Recruitment','Screening','Communication','ATS'] },
+  { slug:'customer-success-associate', title:'Customer Success Associate', company:'ClarityDesk', initials:'CD', location:'Pune, Maharashtra', workplace:'Hybrid', type:'Full-time', experience:'1–3 years', salary:'₹5L – ₹8L', category:'Customer Success', posted:'4 days ago', skills:['Customer Success','SaaS','Communication','CRM'] },
+  { slug:'finance-analyst', title:'Finance Analyst', company:'Meridian Capital', initials:'MC', location:'Mumbai, Maharashtra', workplace:'On-site', type:'Full-time', experience:'2–4 years', salary:'₹8L – ₹12L', category:'Finance', posted:'5 days ago', skills:['Financial Analysis','Excel','Reporting','Forecasting'] },
+];
+
+export const getJobBySlug = (slug) => jobs.find((job) => job.slug === slug);
