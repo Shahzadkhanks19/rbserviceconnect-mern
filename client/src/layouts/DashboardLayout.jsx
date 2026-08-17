@@ -5,7 +5,7 @@ import { apiRequest } from '../lib/api.js';
 
 const logoUrl = 'https://media.githubusercontent.com/media/Shahzadkhanks19/rbserviceconnect/main/images/Royalties-Service-Connect.png';
 
-export default function DashboardLayout({ role }) {
+export default function DashboardLayout({ role, loginPath = '/login' }) {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -26,7 +26,7 @@ export default function DashboardLayout({ role }) {
 
         setUser(response.user);
       } catch {
-        if (!cancelled) navigate('/login', { replace: true });
+        if (!cancelled) navigate(loginPath, { replace: true });
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -36,13 +36,13 @@ export default function DashboardLayout({ role }) {
     return () => {
       cancelled = true;
     };
-  }, [expectedRole, navigate]);
+  }, [expectedRole, loginPath, navigate]);
 
   const handleLogout = async () => {
     try {
       await apiRequest('/auth/logout', { method: 'POST' });
     } finally {
-      navigate('/login', { replace: true });
+      navigate(loginPath, { replace: true });
     }
   };
 
