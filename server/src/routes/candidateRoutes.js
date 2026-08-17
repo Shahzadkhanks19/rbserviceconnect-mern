@@ -14,6 +14,7 @@ import {
   updateAccount,
   updateProfile,
   updateResume,
+  uploadResume,
   withdrawApplication,
 } from '../controllers/candidateController.js';
 
@@ -23,6 +24,7 @@ router.get('/overview',getOverview);
 router.get('/profile',getProfile);
 router.put('/profile',updateProfile);
 router.put('/resume',updateResume);
+router.post('/resume/upload',uploadResume);
 router.delete('/resume',deleteResume);
 router.get('/saved-jobs',getSavedJobs);
 router.put('/saved-jobs/:slug',saveJob);
