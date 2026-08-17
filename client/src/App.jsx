@@ -3,6 +3,11 @@ import PublicLayout from './layouts/PublicLayout.jsx';
 import DashboardLayout from './layouts/DashboardLayout.jsx';
 import HomePage from './pages/public/HomePage.jsx';
 import JobsPage from './pages/public/JobsPage.jsx';
+import CompaniesPage from './pages/public/CompaniesPage.jsx';
+import AboutPage from './pages/public/AboutPage.jsx';
+import ContactPage from './pages/public/ContactPage.jsx';
+import FaqPage from './pages/public/FaqPage.jsx';
+import PrivacyPage from './pages/public/PrivacyPage.jsx';
 import LoginPage from './pages/auth/LoginPage.jsx';
 import RegisterPage from './pages/auth/RegisterPage.jsx';
 import CandidateDashboard from './pages/candidate/CandidateDashboard.jsx';
@@ -16,6 +21,11 @@ export default function App() {
       <Route element={<PublicLayout />}>
         <Route index element={<HomePage />} />
         <Route path="jobs" element={<JobsPage />} />
+        <Route path="companies" element={<CompaniesPage />} />
+        <Route path="about" element={<AboutPage />} />
+        <Route path="contact" element={<ContactPage />} />
+        <Route path="faq" element={<FaqPage />} />
+        <Route path="privacy" element={<PrivacyPage />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="register" element={<RegisterPage />} />
       </Route>
