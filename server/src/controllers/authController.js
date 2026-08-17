@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import User from '../models/User.js';
+import { brandedEmail, sendEmail } from '../services/emailService.js';
 import { setAuthCookie, signAccessToken } from '../utils/tokens.js';
 
 export async function register(req,res){const {firstName,lastName,email,password,role='candidate'}=req.body;if(!firstName||!lastName||!email||!password)return res.status(400).json({message:'All required fields must be provided'});if(!['candidate','recruiter'].includes(role))return res.status(400).json({message:'Invalid account role'});if(password.length<8)return res.status(400).json({message:'Password must be at least 8 characters'});const existing=await User.findOne({email:email.toLowerCase()});if(existing)return res.status(409).json({message:'An account with this email already exists'});const user=await User.create({firstName,lastName,email,password,role,status:role==='recruiter'?'pending':'active'});return res.status(201).json({message:role==='recruiter'?'Recruiter account created and awaiting approval':'Account created successfully',user:{id:user._id,firstName:user.firstName,lastName:user.lastName,email:user.email,role:user.role,status:user.status}});}
@@ -20,18 +21,28 @@ export async function forgotPassword(req,res){
   await user.save({validateBeforeSave:false});
 
   const resetUrl=`${process.env.CLIENT_URL}/reset-password?token=${encodeURIComponent(token)}`;
-  if(process.env.RESEND_API_KEY&&process.env.EMAIL_FROM){
-    try{
-      const response=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:`Bearer ${process.env.RESEND_API_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({from:process.env.EMAIL_FROM,to:[user.email],subject:'Reset your RB Service Connect password',html:`<p>Hello ${user.firstName},</p><p>Use the link below to reset your password. This link expires in 30 minutes.</p><p><a href="${resetUrl}">Reset password</a></p><p>If you did not request this, you can ignore this email.</p>`})});
-      if(!response.ok)throw new Error(`Resend request failed with status ${response.status}`);
-    }catch(error){
-      user.passwordResetTokenHash=null;
-      user.passwordResetExpiresAt=null;
-      await user.save({validateBeforeSave:false});
-      throw error;
-    }
-  }else if(process.env.NODE_ENV!=='production'){
-    console.info(`Password reset link for ${user.email}: ${resetUrl}`);
+  const html=brandedEmail({
+    eyebrow:'Account security',
+    title:'Reset your password',
+    greeting:`Hello ${user.firstName},`,
+    paragraphs:[
+      'We received a request to reset the password for your Royalties Service Connect account.',
+      'Use the secure button below to choose a new password. The reset link expires in 30 minutes.',
+    ],
+    buttonLabel:'Reset password',
+    buttonUrl:resetUrl,
+    note:'If you did not request this password reset, you can safely ignore this email. Your current password will remain unchanged.',
+  });
+  const text=`Hello ${user.firstName},\n\nWe received a request to reset your Royalties Service Connect password.\n\nReset your password: ${resetUrl}\n\nThis link expires in 30 minutes. If you did not request this, you can ignore this email.`;
+
+  try{
+    const result=await sendEmail({to:user.email,subject:'Reset your RB Service Connect password',html,text});
+    if(result.skipped&&process.env.NODE_ENV!=='production')console.info(`Password reset link for ${user.email}: ${resetUrl}`);
+  }catch(error){
+    user.passwordResetTokenHash=null;
+    user.passwordResetExpiresAt=null;
+    await user.save({validateBeforeSave:false});
+    throw error;
   }
 
   return res.json(generic);
