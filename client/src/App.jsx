@@ -6,6 +6,7 @@ import JobsPage from './pages/public/JobsPage.jsx';
 import JobDetailsPage from './pages/public/JobDetailsPage.jsx';
 import CompaniesPage from './pages/public/CompaniesPage.jsx';
 import CompanyDetailsPage from './pages/public/CompanyDetailsPage.jsx';
+import EmployersPage from './pages/public/EmployersPage.jsx';
 import AboutPage from './pages/public/AboutPage.jsx';
 import ContactPage from './pages/public/ContactPage.jsx';
 import FaqPage from './pages/public/FaqPage.jsx';
@@ -26,6 +27,7 @@ export default function App() {
         <Route path="jobs/:slug" element={<JobDetailsPage />} />
         <Route path="companies" element={<CompaniesPage />} />
         <Route path="companies/:slug" element={<CompanyDetailsPage />} />
+        <Route path="employers" element={<EmployersPage />} />
         <Route path="about" element={<AboutPage />} />
         <Route path="contact" element={<ContactPage />} />
         <Route path="faq" element={<FaqPage />} />
