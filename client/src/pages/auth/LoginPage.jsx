@@ -22,6 +22,7 @@ export default function LoginPage() {
       setError('Enter your email address and password.');
       return;
     }
+
     try {
       setSubmitting(true);
       const response = await apiRequest('/auth/login', {
@@ -29,7 +30,14 @@ export default function LoginPage() {
         body: JSON.stringify({ email: form.email.trim(), password: form.password }),
       });
       const role = response?.user?.role;
-      navigate(role === 'admin' ? '/admin' : role === 'recruiter' ? '/recruiter' : '/candidate', { replace: true });
+
+      if (role === 'admin') {
+        await apiRequest('/auth/logout', { method: 'POST' });
+        setError('Administrator accounts must use the dedicated admin portal.');
+        return;
+      }
+
+      navigate(role === 'recruiter' ? '/recruiter' : '/candidate', { replace: true });
     } catch (requestError) {
       setError(requestError.message);
     } finally {
