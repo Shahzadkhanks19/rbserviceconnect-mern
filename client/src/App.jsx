@@ -18,6 +18,7 @@ import ResetPasswordPage from './pages/auth/ResetPasswordPage.jsx';
 import CandidateDashboard from './pages/candidate/CandidateDashboard.jsx';
 import RecruiterDashboard from './pages/recruiter/RecruiterDashboard.jsx';
 import AdminDashboard from './pages/admin/AdminDashboard.jsx';
+import AdminLoginPage from './pages/admin/AdminLoginPage.jsx';
 import NotFoundPage from './pages/public/NotFoundPage.jsx';
 
 export default function App() {
@@ -39,13 +40,14 @@ export default function App() {
         <Route path="forgot-password" element={<ForgotPasswordPage />} />
         <Route path="reset-password" element={<ResetPasswordPage />} />
       </Route>
+      <Route path="admin/login" element={<AdminLoginPage />} />
       <Route path="candidate" element={<DashboardLayout role="Candidate" />}>
         <Route index element={<CandidateDashboard />} />
       </Route>
       <Route path="recruiter" element={<DashboardLayout role="Recruiter" />}>
         <Route index element={<RecruiterDashboard />} />
       </Route>
-      <Route path="admin" element={<DashboardLayout role="Admin" />}>
+      <Route path="admin" element={<DashboardLayout role="Admin" loginPath="/admin/login" />}>
         <Route index element={<AdminDashboard />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
