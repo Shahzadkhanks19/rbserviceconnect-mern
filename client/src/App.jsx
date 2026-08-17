@@ -3,6 +3,7 @@ import PublicLayout from './layouts/PublicLayout.jsx';
 import DashboardLayout from './layouts/DashboardLayout.jsx';
 import HomePage from './pages/public/HomePage.jsx';
 import JobsPage from './pages/public/JobsPage.jsx';
+import JobDetailsPage from './pages/public/JobDetailsPage.jsx';
 import CompaniesPage from './pages/public/CompaniesPage.jsx';
 import AboutPage from './pages/public/AboutPage.jsx';
 import ContactPage from './pages/public/ContactPage.jsx';
@@ -21,6 +22,7 @@ export default function App() {
       <Route element={<PublicLayout />}>
         <Route index element={<HomePage />} />
         <Route path="jobs" element={<JobsPage />} />
+        <Route path="jobs/:slug" element={<JobDetailsPage />} />
         <Route path="companies" element={<CompaniesPage />} />
         <Route path="about" element={<AboutPage />} />
         <Route path="contact" element={<ContactPage />} />
