@@ -1,0 +1,11 @@
+import { Briefcase, MapPin, Search, SlidersHorizontal } from 'lucide-react';
+
+const jobs = [
+  ['Frontend Developer', 'Northstar Labs', 'Jodhpur / Hybrid', '₹5–8 LPA'],
+  ['Recruitment Executive', 'PeopleGrid', 'Jaipur / On-site', '₹3–5 LPA'],
+  ['UI/UX Designer', 'Studio Arc', 'Remote', '₹4–7 LPA'],
+];
+
+export default function JobsPage() {
+  return <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8"><div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[.18em] text-indigo-600">Job marketplace</p><h1 className="mt-2 text-4xl font-semibold tracking-tight">Find your next opportunity</h1><p className="mt-3 text-slate-500">Search verified openings across companies, roles, and work preferences.</p></div><button className="inline-flex items-center gap-2 self-start rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold"><SlidersHorizontal size={17} /> Filters</button></div><div className="mt-8 flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm"><Search className="ml-2 text-slate-400" size={20} /><input className="min-w-0 flex-1 bg-transparent px-2 py-2 text-sm outline-none" placeholder="Search jobs, skills, or companies" /><button className="rounded-xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white">Search</button></div><div className="mt-8 grid gap-4">{jobs.map(([title,company,location,salary]) => <article key={title} className="flex flex-col gap-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:flex-row sm:items-center sm:justify-between"><div><div className="mb-3 flex items-center gap-2 text-xs font-medium text-indigo-600"><Briefcase size={14} /> Full-time</div><h2 className="text-xl font-semibold">{title}</h2><p className="mt-1 text-sm text-slate-500">{company}</p><div className="mt-3 flex flex-wrap gap-3 text-xs text-slate-500"><span className="inline-flex items-center gap-1"><MapPin size={14} />{location}</span><span>{salary}</span></div></div><button className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold hover:border-slate-300 hover:bg-slate-50">View job</button></article>)}</div></section>;
+}
