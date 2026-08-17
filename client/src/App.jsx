@@ -1,7 +1,7 @@
-import { lazy, Suspense } from 'react';
-import { Route, Routes } from 'react-router-dom';
-import PublicLayout from './layouts/PublicLayout.jsx';
+import { lazy, Suspense, useEffect } from 'react';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import DashboardLayout from './layouts/DashboardLayout.jsx';
+import PublicLayout from './layouts/PublicLayout.jsx';
 
 const HomePage = lazy(() => import('./pages/public/HomePage.jsx'));
 const JobsPage = lazy(() => import('./pages/public/JobsPage.jsx'));
@@ -37,41 +37,54 @@ function RouteFallback() {
   );
 }
 
+function ScrollToTop() {
+  const location = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, [location.pathname, location.search]);
+
+  return null;
+}
+
 export default function App() {
   return (
-    <Suspense fallback={<RouteFallback />}>
-      <Routes>
-        <Route element={<PublicLayout />}>
-          <Route index element={<HomePage />} />
-          <Route path="jobs" element={<JobsPage />} />
-          <Route path="jobs/:slug" element={<JobDetailsPage />} />
-          <Route path="companies" element={<CompaniesPage />} />
-          <Route path="companies/:slug" element={<CompanyDetailsPage />} />
-          <Route path="employers" element={<EmployersPage />} />
-          <Route path="about" element={<AboutPage />} />
-          <Route path="contact" element={<ContactPage />} />
-          <Route path="faq" element={<FaqPage />} />
-          <Route path="privacy" element={<PrivacyPage />} />
-          <Route path="terms" element={<TermsPage />} />
-          <Route path="cookies" element={<CookiesPage />} />
-          <Route path="accessibility" element={<AccessibilityPage />} />
-          <Route path="login" element={<LoginPage />} />
-          <Route path="register" element={<RegisterPage />} />
-          <Route path="forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="reset-password" element={<ResetPasswordPage />} />
-        </Route>
-        <Route path="admin/login" element={<AdminLoginPage />} />
-        <Route path="candidate" element={<DashboardLayout role="Candidate" />}>
-          <Route index element={<CandidateDashboard />} />
-        </Route>
-        <Route path="recruiter" element={<DashboardLayout role="Recruiter" />}>
-          <Route index element={<RecruiterDashboard />} />
-        </Route>
-        <Route path="admin" element={<DashboardLayout role="Admin" loginPath="/admin/login" />}>
-          <Route index element={<AdminDashboard />} />
-        </Route>
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </Suspense>
+    <>
+      <ScrollToTop />
+      <Suspense fallback={<RouteFallback />}>
+        <Routes>
+          <Route element={<PublicLayout />}>
+            <Route index element={<HomePage />} />
+            <Route path="jobs" element={<JobsPage />} />
+            <Route path="jobs/:slug" element={<JobDetailsPage />} />
+            <Route path="companies" element={<CompaniesPage />} />
+            <Route path="companies/:slug" element={<CompanyDetailsPage />} />
+            <Route path="employers" element={<EmployersPage />} />
+            <Route path="about" element={<AboutPage />} />
+            <Route path="contact" element={<ContactPage />} />
+            <Route path="faq" element={<FaqPage />} />
+            <Route path="privacy" element={<PrivacyPage />} />
+            <Route path="terms" element={<TermsPage />} />
+            <Route path="cookies" element={<CookiesPage />} />
+            <Route path="accessibility" element={<AccessibilityPage />} />
+            <Route path="login" element={<LoginPage />} />
+            <Route path="register" element={<RegisterPage />} />
+            <Route path="forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="reset-password" element={<ResetPasswordPage />} />
+          </Route>
+          <Route path="admin/login" element={<AdminLoginPage />} />
+          <Route path="candidate" element={<DashboardLayout role="Candidate" />}>
+            <Route index element={<CandidateDashboard />} />
+          </Route>
+          <Route path="recruiter" element={<DashboardLayout role="Recruiter" />}>
+            <Route index element={<RecruiterDashboard />} />
+          </Route>
+          <Route path="admin" element={<DashboardLayout role="Admin" loginPath="/admin/login" />}>
+            <Route index element={<AdminDashboard />} />
+          </Route>
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Suspense>
+    </>
   );
 }
