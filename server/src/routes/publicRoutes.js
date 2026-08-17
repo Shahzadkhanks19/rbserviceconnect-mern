@@ -1,8 +1,10 @@
 import { Router } from 'express';
-import { getEmployerOverview } from '../controllers/publicController.js';
-
-const router = Router();
-
-router.get('/employers/overview', getEmployerOverview);
-
+import { getEmployerOverview, getPublicCompany, getPublicJob, getPublicJobStats, listPublicCompanies, listPublicJobs } from '../controllers/publicController.js';
+const router=Router();
+router.get('/employers/overview',getEmployerOverview);
+router.get('/jobs',listPublicJobs);
+router.get('/jobs/stats',getPublicJobStats);
+router.get('/jobs/:slug',getPublicJob);
+router.get('/companies',listPublicCompanies);
+router.get('/companies/:slug',getPublicCompany);
 export default router;
