@@ -13,6 +13,8 @@ import FaqPage from './pages/public/FaqPage.jsx';
 import PrivacyPage from './pages/public/PrivacyPage.jsx';
 import LoginPage from './pages/auth/LoginPage.jsx';
 import RegisterPage from './pages/auth/RegisterPage.jsx';
+import ForgotPasswordPage from './pages/auth/ForgotPasswordPage.jsx';
+import ResetPasswordPage from './pages/auth/ResetPasswordPage.jsx';
 import CandidateDashboard from './pages/candidate/CandidateDashboard.jsx';
 import RecruiterDashboard from './pages/recruiter/RecruiterDashboard.jsx';
 import AdminDashboard from './pages/admin/AdminDashboard.jsx';
@@ -34,6 +36,8 @@ export default function App() {
         <Route path="privacy" element={<PrivacyPage />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="register" element={<RegisterPage />} />
+        <Route path="forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="reset-password" element={<ResetPasswordPage />} />
       </Route>
       <Route path="candidate" element={<DashboardLayout role="Candidate" />}>
         <Route index element={<CandidateDashboard />} />
