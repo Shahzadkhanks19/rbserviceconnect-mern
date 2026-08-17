@@ -1,5 +1,5 @@
 import { CheckCircle2, Clock3, RefreshCw, ShieldCheck, UserCheck, UserX, Users } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { apiRequest } from '../../lib/api.js';
 
 const statusStyles = {
@@ -15,21 +15,37 @@ export default function AdminDashboard() {
   const [error, setError] = useState('');
   const [updatingId, setUpdatingId] = useState('');
 
-  const loadRecruiters = async () => {
+  const loadRecruiters = useCallback(async ({ showLoading = true } = {}) => {
+    if (showLoading) setLoading(true);
+    setError('');
+
     try {
-      setLoading(true);
-      setError('');
       const response = await apiRequest('/admin/recruiters');
       setRecruiters(response?.recruiters || []);
     } catch (requestError) {
       setError(requestError.message);
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    loadRecruiters();
+    let cancelled = false;
+
+    apiRequest('/admin/recruiters')
+      .then((response) => {
+        if (!cancelled) setRecruiters(response?.recruiters || []);
+      })
+      .catch((requestError) => {
+        if (!cancelled) setError(requestError.message);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const counts = useMemo(() => ({
@@ -74,7 +90,7 @@ export default function AdminDashboard() {
           <h2 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">Recruiter approvals</h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">Review employer registrations before granting access to recruiter tools and candidate data.</p>
         </div>
-        <button type="button" onClick={loadRecruiters} disabled={loading} className="inline-flex items-center gap-2 self-start rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60">
+        <button type="button" onClick={() => loadRecruiters()} disabled={loading} className="inline-flex items-center gap-2 self-start rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60">
           <RefreshCw size={16} className={loading ? 'animate-spin' : ''} /> Refresh
         </button>
       </div>
