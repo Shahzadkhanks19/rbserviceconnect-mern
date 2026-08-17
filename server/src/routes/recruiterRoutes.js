@@ -1,0 +1,18 @@
+import { Router } from 'express';
+import { allowRoles, requireAuth } from '../middleware/auth.js';
+import { changeJobStatus, createJob, deleteJob, getCompanyProfile, getOverview, getSettings, listApplicants, listJobs, saveCompanyProfile, updateApplicationStatus, updateJob, updateSettings } from '../controllers/recruiterController.js';
+const router=Router();
+router.use(requireAuth,allowRoles('recruiter'));
+router.get('/overview',getOverview);
+router.get('/company',getCompanyProfile);
+router.put('/company',saveCompanyProfile);
+router.get('/jobs',listJobs);
+router.post('/jobs',createJob);
+router.put('/jobs/:id',updateJob);
+router.patch('/jobs/:id/status',changeJobStatus);
+router.delete('/jobs/:id',deleteJob);
+router.get('/applicants',listApplicants);
+router.patch('/applications/:id/status',updateApplicationStatus);
+router.get('/settings',getSettings);
+router.patch('/settings',updateSettings);
+export default router;
