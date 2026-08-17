@@ -15,7 +15,7 @@ const candidateProfileSchema = new mongoose.Schema({
   preferences:{
     jobTypes:{type:[String],default:[]}, workplaces:{type:[String],default:[]}, preferredLocations:{type:[String],default:[]}, minimumSalary:{type:String,trim:true,maxlength:60,default:''}, openToWork:{type:Boolean,default:true}
   },
-  resume:{name:{type:String,trim:true,maxlength:255,default:''},url:{type:String,trim:true,maxlength:1000,default:''},updatedAt:{type:Date,default:null}},
+  resume:{name:{type:String,trim:true,maxlength:255,default:''},url:{type:String,trim:true,maxlength:1000,default:''},publicId:{type:String,trim:true,maxlength:500,default:''},source:{type:String,enum:['','url','upload'],default:''},updatedAt:{type:Date,default:null}},
   savedJobs:{type:[String],default:[]}
 },{timestamps:true});
 
