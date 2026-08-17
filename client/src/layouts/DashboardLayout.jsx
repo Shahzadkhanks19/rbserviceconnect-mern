@@ -1,10 +1,11 @@
-import { Bookmark, BriefcaseBusiness, FileText, LayoutDashboard, LogOut, Menu, Settings, UserRound, X } from 'lucide-react';
+import { Bookmark, BriefcaseBusiness, Building2, FileText, LayoutDashboard, LogOut, Menu, Settings, UserRound, UsersRound, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { apiRequest } from '../lib/api.js';
 
 const logoUrl = 'https://media.githubusercontent.com/media/Shahzadkhanks19/rbserviceconnect/main/images/Royalties-Service-Connect.png';
 const candidateNav = [['','Overview',LayoutDashboard],['profile','Profile',UserRound],['resume','Resume',FileText],['saved-jobs','Saved jobs',Bookmark],['applications','Applications',BriefcaseBusiness],['settings','Settings',Settings]];
+const recruiterNav = [['','Overview',LayoutDashboard],['company','Company profile',Building2],['jobs','Jobs',BriefcaseBusiness],['applicants','Applicants',UsersRound],['settings','Settings',Settings]];
 const defaultNav = [['','Overview',LayoutDashboard]];
 
 function DashboardNav({role,expectedRole,navItems,user,onClose,onLogout}){
@@ -17,7 +18,7 @@ export default function DashboardLayout({ role, loginPath = '/login' }) {
   const [loading, setLoading] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
   const expectedRole = role.toLowerCase();
-  const navItems = expectedRole === 'candidate' ? candidateNav : defaultNav;
+  const navItems = expectedRole === 'candidate' ? candidateNav : expectedRole === 'recruiter' ? recruiterNav : defaultNav;
 
   useEffect(() => {
     let cancelled = false;
