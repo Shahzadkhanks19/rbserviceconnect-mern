@@ -8,6 +8,7 @@ import authRoutes from './routes/authRoutes.js';
 import candidateRoutes from './routes/candidateRoutes.js';
 import contactRoutes from './routes/contactRoutes.js';
 import publicRoutes from './routes/publicRoutes.js';
+import recruiterRoutes from './routes/recruiterRoutes.js';
 
 const app = express();
 app.disable('x-powered-by');
@@ -22,6 +23,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/candidate', candidateRoutes);
+app.use('/api/recruiter', recruiterRoutes);
 app.use('/api/admin', adminRoutes);
 app.use((req, res) => res.status(404).json({ message: `Route not found: ${req.method} ${req.originalUrl}` }));
 app.use((err, _req, res, _next) => {
