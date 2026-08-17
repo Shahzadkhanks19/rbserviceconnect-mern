@@ -1,0 +1,29 @@
+import { ArrowLeft, Mail } from 'lucide-react';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { apiRequest } from '../../lib/api.js';
+
+export default function ForgotPasswordPage() {
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setError('');
+    setMessage('');
+    if (!email.trim()) return setError('Enter your email address.');
+    try {
+      setSubmitting(true);
+      const response = await apiRequest('/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email: email.trim() }) });
+      setMessage(response?.message || 'If an account exists for that email, a password reset link has been sent.');
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return <section className="bg-slate-50 py-14"><div className="mx-auto max-w-xl px-4 sm:px-6"><div className="rounded-[2rem] border border-slate-200 bg-white p-7 shadow-xl shadow-black/5 sm:p-9"><Link to="/login" className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-indigo-700"><ArrowLeft size={16}/> Back to sign in</Link><p className="mt-8 text-xs font-bold uppercase tracking-[0.2em] text-indigo-700">Password recovery</p><h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-slate-950">Reset your password securely.</h1><p className="mt-3 text-sm leading-6 text-slate-500">Enter your account email. If it exists, we’ll send a one-time reset link that expires in 30 minutes.</p>{error&&<div className="mt-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}{message&&<div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{message}</div>}<form onSubmit={handleSubmit} className="mt-7 space-y-4"><label className="block"><span className="text-sm font-semibold text-slate-700">Email address</span><span className="mt-2 flex items-center gap-3 rounded-xl border border-slate-200 px-4 py-3 focus-within:border-indigo-400 focus-within:ring-4 focus-within:ring-indigo-100"><Mail size={18} className="text-slate-400"/><input value={email} onChange={(e)=>setEmail(e.target.value)} type="email" autoComplete="email" className="min-w-0 flex-1 bg-transparent text-sm outline-none" placeholder="you@example.com"/></span></label><button disabled={submitting} className="w-full rounded-xl bg-indigo-500 px-4 py-3.5 text-sm font-semibold text-white transition hover:bg-indigo-400 disabled:opacity-60">{submitting?'Sending…':'Send reset link'}</button></form></div></div></section>;
+}
