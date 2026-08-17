@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { BriefcaseBusiness, Building2, ChevronDown, Clock3, MapPin, Search, SlidersHorizontal, WalletCards, X } from 'lucide-react';
+import { BriefcaseBusiness, ChevronDown, Clock3, MapPin, Search, SlidersHorizontal, WalletCards, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { jobs } from '../../data/jobs.js';
 
@@ -52,11 +52,9 @@ export default function JobsPage() {
         </div>
         <button type="button" onClick={clearFilters} className="text-xs font-semibold text-indigo-600 transition hover:text-indigo-500">Clear all</button>
       </div>
-
       <FilterSelect label="Category" value={category} onChange={setCategory} options={categories} />
       <FilterSelect label="Work mode" value={workMode} onChange={setWorkMode} options={workModes} />
       <FilterSelect label="Experience" value={experience} onChange={setExperience} options={experienceOptions} />
-
       <div className="rounded-2xl border border-indigo-100 bg-indigo-50 p-4">
         <p className="text-sm font-semibold text-slate-950">Looking for better matches?</p>
         <p className="mt-2 text-xs leading-5 text-slate-600">Create a candidate profile so your skills and preferences stay ready for applications.</p>
@@ -74,7 +72,6 @@ export default function JobsPage() {
             <h1 className="mt-3 text-4xl font-semibold tracking-[-0.045em] text-slate-950 sm:text-5xl lg:text-6xl">Find work that moves you forward.</h1>
             <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">Search opportunities across verified employers, compare the details that matter, and keep your next move focused.</p>
           </div>
-
           <div className="mt-8 grid gap-3 rounded-3xl border border-black/5 bg-white p-3 shadow-xl shadow-black/5 lg:grid-cols-[1fr_.8fr_auto]">
             <label className="flex min-w-0 items-center gap-3 rounded-2xl bg-slate-50 px-4 py-3.5 focus-within:ring-2 focus-within:ring-indigo-200">
               <Search size={19} className="shrink-0 text-slate-400" />
@@ -88,30 +85,17 @@ export default function JobsPage() {
           </div>
         </div>
       </section>
-
       <section className="bg-slate-50 py-10 sm:py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <p className="text-sm font-semibold text-slate-950">{filteredJobs.length} opportunities found</p>
-              <p className="mt-1 text-xs text-slate-500">Verified jobs currently available on RB Service Connect.</p>
-            </div>
+            <div><p className="text-sm font-semibold text-slate-950">{filteredJobs.length} opportunities found</p><p className="mt-1 text-xs text-slate-500">Verified jobs currently available on RB Service Connect.</p></div>
             <div className="flex items-center gap-2">
               <button type="button" onClick={() => setMobileFiltersOpen(true)} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 lg:hidden"><SlidersHorizontal size={16} /> Filters</button>
-              <label className="relative">
-                <span className="sr-only">Sort jobs</span>
-                <select value={sort} onChange={(event) => setSort(event.target.value)} className="appearance-none rounded-xl border border-slate-200 bg-white py-2.5 pl-4 pr-9 text-sm font-semibold text-slate-700 outline-none transition focus:border-indigo-300">
-                  <option>Newest</option>
-                  <option>Salary: high to low</option>
-                </select>
-                <ChevronDown size={15} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              </label>
+              <label className="relative"><span className="sr-only">Sort jobs</span><select value={sort} onChange={(event) => setSort(event.target.value)} className="appearance-none rounded-xl border border-slate-200 bg-white py-2.5 pl-4 pr-9 text-sm font-semibold text-slate-700 outline-none transition focus:border-indigo-300"><option>Newest</option><option>Salary: high to low</option></select><ChevronDown size={15} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" /></label>
             </div>
           </div>
-
           <div className="grid gap-6 lg:grid-cols-[260px_1fr] xl:grid-cols-[280px_1fr]">
             <aside className="hidden self-start rounded-3xl border border-slate-200 bg-white p-5 shadow-sm lg:block">{filterPanel}</aside>
-
             <div className="space-y-4">
               {filteredJobs.length > 0 ? filteredJobs.map((job) => (
                 <article key={job.slug} className="group rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg hover:shadow-black/5 sm:p-6">
@@ -119,70 +103,24 @@ export default function JobsPage() {
                     <div className="grid size-14 shrink-0 place-items-center rounded-2xl bg-[#879E83] text-sm font-bold text-white">{job.initials}</div>
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
-                        <div>
-                          <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-500">
-                            <span>{job.company}</span>
-                            {job.verified && <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700">Verified employer</span>}
-                            {job.featured && <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-indigo-700">Featured</span>}
-                          </div>
-                          <h2 className="mt-2 text-xl font-semibold tracking-[-0.025em] text-slate-950 sm:text-2xl">{job.title}</h2>
-                          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">{job.summary}</p>
-                        </div>
+                        <div><div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-500"><span>{job.company}</span>{job.verified && <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700">Verified employer</span>}{job.featured && <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-indigo-700">Featured</span>}</div><h2 className="mt-2 text-xl font-semibold tracking-[-0.025em] text-slate-950 sm:text-2xl">{job.title}</h2><p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">{job.summary}</p></div>
                         <Link to={`/jobs/${job.slug}`} className="inline-flex shrink-0 items-center justify-center rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition group-hover:bg-indigo-500">View job</Link>
                       </div>
-
-                      <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs font-medium text-slate-500 sm:text-sm">
-                        <span className="inline-flex items-center gap-1.5"><MapPin size={15} /> {job.location} · {job.workplace}</span>
-                        <span className="inline-flex items-center gap-1.5"><BriefcaseBusiness size={15} /> {job.experience} · {job.type}</span>
-                        <span className="inline-flex items-center gap-1.5"><WalletCards size={15} /> {job.salary}</span>
-                        <span className="inline-flex items-center gap-1.5"><Clock3 size={15} /> {job.posted}</span>
-                      </div>
-
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        {job.skills.slice(0, 5).map((skill) => <span key={skill} className="rounded-lg bg-slate-100 px-2.5 py-1.5 text-[11px] font-semibold text-slate-600">{skill}</span>)}
-                      </div>
+                      <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs font-medium text-slate-500 sm:text-sm"><span className="inline-flex items-center gap-1.5"><MapPin size={15} /> {job.location} · {job.workplace}</span><span className="inline-flex items-center gap-1.5"><BriefcaseBusiness size={15} /> {job.experience} · {job.type}</span><span className="inline-flex items-center gap-1.5"><WalletCards size={15} /> {job.salary}</span><span className="inline-flex items-center gap-1.5"><Clock3 size={15} /> {job.posted}</span></div>
+                      <div className="mt-4 flex flex-wrap gap-2">{job.skills.slice(0, 5).map((skill) => <span key={skill} className="rounded-lg bg-slate-100 px-2.5 py-1.5 text-[11px] font-semibold text-slate-600">{skill}</span>)}</div>
                     </div>
                   </div>
                 </article>
-              )) : (
-                <div className="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
-                  <Search size={28} className="mx-auto text-slate-300" />
-                  <h2 className="mt-4 text-xl font-semibold text-slate-950">No jobs match those filters.</h2>
-                  <p className="mt-2 text-sm text-slate-500">Try a broader keyword, location, or work preference.</p>
-                  <button type="button" onClick={clearFilters} className="mt-5 rounded-xl bg-indigo-500 px-4 py-2.5 text-sm font-semibold text-white">Clear filters</button>
-                </div>
-              )}
+              )) : <div className="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center"><Search size={28} className="mx-auto text-slate-300" /><h2 className="mt-4 text-xl font-semibold text-slate-950">No jobs match those filters.</h2><p className="mt-2 text-sm text-slate-500">Try a broader keyword, location, or work preference.</p><button type="button" onClick={clearFilters} className="mt-5 rounded-xl bg-indigo-500 px-4 py-2.5 text-sm font-semibold text-white">Clear filters</button></div>}
             </div>
           </div>
         </div>
       </section>
-
-      {mobileFiltersOpen && (
-        <div className="fixed inset-0 z-[70] bg-slate-950/40 p-4 backdrop-blur-sm lg:hidden">
-          <div className="ml-auto h-full max-w-sm overflow-y-auto rounded-3xl bg-white p-5 shadow-2xl">
-            <div className="mb-6 flex items-center justify-between">
-              <div className="flex items-center gap-2"><SlidersHorizontal size={18} /><span className="font-semibold">Filters</span></div>
-              <button type="button" onClick={() => setMobileFiltersOpen(false)} className="grid size-9 place-items-center rounded-xl bg-slate-100 text-slate-600" aria-label="Close filters"><X size={17} /></button>
-            </div>
-            {filterPanel}
-            <button type="button" onClick={() => setMobileFiltersOpen(false)} className="mt-6 w-full rounded-xl bg-indigo-500 px-4 py-3 text-sm font-semibold text-white">Show {filteredJobs.length} jobs</button>
-          </div>
-        </div>
-      )}
+      {mobileFiltersOpen && <div className="fixed inset-0 z-[70] bg-slate-950/40 p-4 backdrop-blur-sm lg:hidden"><div className="ml-auto h-full max-w-sm overflow-y-auto rounded-3xl bg-white p-5 shadow-2xl"><div className="mb-6 flex items-center justify-between"><div className="flex items-center gap-2"><SlidersHorizontal size={18} /><span className="font-semibold">Filters</span></div><button type="button" onClick={() => setMobileFiltersOpen(false)} className="grid size-9 place-items-center rounded-xl bg-slate-100 text-slate-600" aria-label="Close filters"><X size={17} /></button></div>{filterPanel}<button type="button" onClick={() => setMobileFiltersOpen(false)} className="mt-6 w-full rounded-xl bg-indigo-500 px-4 py-3 text-sm font-semibold text-white">Show {filteredJobs.length} jobs</button></div></div>}
     </>
   );
 }
 
 function FilterSelect({ label, value, onChange, options }) {
-  return (
-    <label className="block">
-      <span className="mb-2 block text-xs font-bold uppercase tracking-[0.14em] text-slate-500">{label}</span>
-      <span className="relative block">
-        <select value={value} onChange={(event) => onChange(event.target.value)} className="w-full appearance-none rounded-xl border border-slate-200 bg-white py-3 pl-3.5 pr-9 text-sm text-slate-700 outline-none transition focus:border-indigo-300">
-          {options.map((option) => <option key={option}>{option}</option>)}
-        </select>
-        <ChevronDown size={15} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
-      </span>
-    </label>
-  );
+  return <label className="block"><span className="mb-2 block text-xs font-bold uppercase tracking-[0.14em] text-slate-500">{label}</span><span className="relative block"><select value={value} onChange={(event) => onChange(event.target.value)} className="w-full appearance-none rounded-xl border border-slate-200 bg-white py-3 pl-3.5 pr-9 text-sm text-slate-700 outline-none transition focus:border-indigo-300">{options.map((option) => <option key={option}>{option}</option>)}</select><ChevronDown size={15} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" /></span></label>;
 }
