@@ -9,7 +9,7 @@ const navItems = [
   ['/about', 'About'],
 ];
 
-const logoUrl = 'https://media.githubusercontent.com/media/Shahzadkhanks19/rbserviceconnect/main/images/Royalties-Service-Connect.png';
+const logoUrl = '/images/rb-service-connect-logo.webp';
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,7 +19,7 @@ export default function Header() {
     <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur-xl">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link to="/" className="flex shrink-0 items-center" aria-label="RB Service Connect home" onClick={closeMenu}>
-          <img src={logoUrl} alt="RB Service Connect" className="h-11 w-auto object-contain sm:h-12" />
+          <img src={logoUrl} alt="RB Service Connect" className="h-10 w-auto object-contain sm:h-11" />
         </Link>
 
         <nav className="hidden items-center gap-8 lg:flex" aria-label="Primary navigation">
@@ -28,7 +28,7 @@ export default function Header() {
               key={to}
               to={to}
               className={({ isActive }) =>
-                `text-sm font-semibold transition-colors ${isActive ? 'text-blue-700' : 'text-slate-600 hover:text-slate-950'}`
+                `text-sm font-semibold transition-colors ${isActive ? 'text-blue-600' : 'text-slate-600 hover:text-slate-950'}`
               }
             >
               {label}
@@ -43,7 +43,7 @@ export default function Header() {
           <Link to="/register?role=recruiter" className="rounded-xl border border-blue-200 px-4 py-2.5 text-sm font-semibold text-blue-800 transition hover:border-blue-300 hover:bg-blue-50">
             For employers
           </Link>
-          <Link to="/register" className="rounded-xl bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-700/20 transition hover:bg-blue-600">
+          <Link to="/register" className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-700/20 transition hover:bg-blue-500">
             Create account
           </Link>
         </div>
@@ -81,7 +81,7 @@ export default function Header() {
               <Link to="/register?role=recruiter" onClick={closeMenu} className="rounded-xl border border-blue-200 px-4 py-3 text-center text-sm font-semibold text-blue-800">
                 For employers
               </Link>
-              <Link to="/register" onClick={closeMenu} className="rounded-xl bg-blue-700 px-4 py-3 text-center text-sm font-semibold text-white">
+              <Link to="/register" onClick={closeMenu} className="rounded-xl bg-blue-600 px-4 py-3 text-center text-sm font-semibold text-white">
                 Create account
               </Link>
             </div>
