@@ -9,7 +9,9 @@ const userSchema = new mongoose.Schema({
   role:{type:String,enum:['candidate','recruiter','admin'],default:'candidate',index:true},
   status:{type:String,enum:['active','suspended','pending'],default:'active'},
   emailVerified:{type:Boolean,default:false},
-  lastLoginAt:{type:Date,default:null}
+  lastLoginAt:{type:Date,default:null},
+  passwordResetTokenHash:{type:String,default:null,select:false},
+  passwordResetExpiresAt:{type:Date,default:null,select:false}
 },{timestamps:true});
 
 userSchema.pre('save',async function(){if(!this.isModified('password')) return;this.password=await bcrypt.hash(this.password,12);});
