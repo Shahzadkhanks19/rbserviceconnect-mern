@@ -1,4 +1,4 @@
-import { BriefcaseBusiness, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 
@@ -9,22 +9,17 @@ const navItems = [
   ['/about', 'About'],
 ];
 
+const logoUrl = 'https://media.githubusercontent.com/media/Shahzadkhanks19/rbserviceconnect/main/images/Royalties-Service-Connect.png';
+
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
-
   const closeMenu = () => setIsOpen(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur-xl">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link to="/" className="flex items-center gap-3" aria-label="RB Service Connect home" onClick={closeMenu}>
-          <span className="grid size-11 place-items-center rounded-2xl bg-slate-950 text-white shadow-lg shadow-slate-950/10">
-            <BriefcaseBusiness size={21} strokeWidth={1.9} />
-          </span>
-          <span>
-            <strong className="block text-[15px] font-bold tracking-[-0.02em] text-slate-950">RB Service Connect</strong>
-            <span className="block text-[11px] font-medium tracking-wide text-slate-500">Talent. Opportunity. Growth.</span>
-          </span>
+        <Link to="/" className="flex shrink-0 items-center" aria-label="RB Service Connect home" onClick={closeMenu}>
+          <img src={logoUrl} alt="RB Service Connect" className="h-11 w-auto object-contain sm:h-12" />
         </Link>
 
         <nav className="hidden items-center gap-8 lg:flex" aria-label="Primary navigation">
@@ -33,7 +28,7 @@ export default function Header() {
               key={to}
               to={to}
               className={({ isActive }) =>
-                `text-sm font-semibold transition-colors ${isActive ? 'text-indigo-600' : 'text-slate-600 hover:text-slate-950'}`
+                `text-sm font-semibold transition-colors ${isActive ? 'text-blue-700' : 'text-slate-600 hover:text-slate-950'}`
               }
             >
               {label}
@@ -45,10 +40,10 @@ export default function Header() {
           <Link to="/login" className="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-slate-950">
             Sign in
           </Link>
-          <Link to="/register?role=recruiter" className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
+          <Link to="/register?role=recruiter" className="rounded-xl border border-blue-200 px-4 py-2.5 text-sm font-semibold text-blue-800 transition hover:border-blue-300 hover:bg-blue-50">
             For employers
           </Link>
-          <Link to="/register" className="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-600/20 transition hover:bg-indigo-500">
+          <Link to="/register" className="rounded-xl bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-700/20 transition hover:bg-blue-600">
             Create account
           </Link>
         </div>
@@ -73,7 +68,7 @@ export default function Header() {
                 to={to}
                 onClick={closeMenu}
                 className={({ isActive }) =>
-                  `rounded-xl px-4 py-3 text-sm font-semibold ${isActive ? 'bg-indigo-50 text-indigo-700' : 'text-slate-700 hover:bg-slate-50'}`
+                  `rounded-xl px-4 py-3 text-sm font-semibold ${isActive ? 'bg-blue-50 text-blue-800' : 'text-slate-700 hover:bg-slate-50'}`
                 }
               >
                 {label}
@@ -83,10 +78,10 @@ export default function Header() {
               <Link to="/login" onClick={closeMenu} className="rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-700">
                 Sign in
               </Link>
-              <Link to="/register?role=recruiter" onClick={closeMenu} className="rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-700">
+              <Link to="/register?role=recruiter" onClick={closeMenu} className="rounded-xl border border-blue-200 px-4 py-3 text-center text-sm font-semibold text-blue-800">
                 For employers
               </Link>
-              <Link to="/register" onClick={closeMenu} className="rounded-xl bg-indigo-600 px-4 py-3 text-center text-sm font-semibold text-white">
+              <Link to="/register" onClick={closeMenu} className="rounded-xl bg-blue-700 px-4 py-3 text-center text-sm font-semibold text-white">
                 Create account
               </Link>
             </div>
