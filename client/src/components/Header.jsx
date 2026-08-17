@@ -45,7 +45,7 @@ export default function Header() {
           <Link to="/login" className="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-[#f3e8a2]/35 hover:text-slate-950">
             Sign in
           </Link>
-          <Link to="/register?role=recruiter" className="rounded-xl border border-emerald-300 px-4 py-2.5 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-50">
+          <Link to="/employers" className="rounded-xl border border-emerald-300 px-4 py-2.5 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-50">
             For employers
           </Link>
           <Link to="/register" className="rounded-xl bg-indigo-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-700/15 transition hover:bg-indigo-600">
@@ -83,7 +83,7 @@ export default function Header() {
               <Link to="/login" onClick={closeMenu} className="rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-700">
                 Sign in
               </Link>
-              <Link to="/register?role=recruiter" onClick={closeMenu} className="rounded-xl border border-emerald-300 px-4 py-3 text-center text-sm font-semibold text-emerald-800">
+              <Link to="/employers" onClick={closeMenu} className="rounded-xl border border-emerald-300 px-4 py-3 text-center text-sm font-semibold text-emerald-800">
                 For employers
               </Link>
               <Link to="/register" onClick={closeMenu} className="rounded-xl bg-indigo-500 px-4 py-3 text-center text-sm font-semibold text-white">
