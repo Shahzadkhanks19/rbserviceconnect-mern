@@ -11,6 +11,9 @@ import AboutPage from './pages/public/AboutPage.jsx';
 import ContactPage from './pages/public/ContactPage.jsx';
 import FaqPage from './pages/public/FaqPage.jsx';
 import PrivacyPage from './pages/public/PrivacyPage.jsx';
+import TermsPage from './pages/public/TermsPage.jsx';
+import CookiesPage from './pages/public/CookiesPage.jsx';
+import AccessibilityPage from './pages/public/AccessibilityPage.jsx';
 import LoginPage from './pages/auth/LoginPage.jsx';
 import RegisterPage from './pages/auth/RegisterPage.jsx';
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage.jsx';
@@ -35,6 +38,9 @@ export default function App() {
         <Route path="contact" element={<ContactPage />} />
         <Route path="faq" element={<FaqPage />} />
         <Route path="privacy" element={<PrivacyPage />} />
+        <Route path="terms" element={<TermsPage />} />
+        <Route path="cookies" element={<CookiesPage />} />
+        <Route path="accessibility" element={<AccessibilityPage />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="register" element={<RegisterPage />} />
         <Route path="forgot-password" element={<ForgotPasswordPage />} />
