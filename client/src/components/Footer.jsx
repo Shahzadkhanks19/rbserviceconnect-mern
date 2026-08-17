@@ -16,10 +16,10 @@ const footerGroups = [
   {
     title: 'Employers',
     links: [
-      ['/register?role=recruiter', 'Post a job'],
+      ['/employers', 'For employers'],
       ['/register?role=recruiter', 'Create employer account'],
       ['/login', 'Recruiter sign in'],
-      ['/about', 'Why RB Service Connect'],
+      ['/employers', 'Why RB Service Connect'],
     ],
   },
   {
