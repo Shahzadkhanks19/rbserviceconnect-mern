@@ -20,71 +20,31 @@ const LoginPage = lazy(() => import('./pages/auth/LoginPage.jsx'));
 const RegisterPage = lazy(() => import('./pages/auth/RegisterPage.jsx'));
 const ForgotPasswordPage = lazy(() => import('./pages/auth/ForgotPasswordPage.jsx'));
 const ResetPasswordPage = lazy(() => import('./pages/auth/ResetPasswordPage.jsx'));
-const CandidateDashboard = lazy(() => import('./pages/candidate/CandidateDashboard.jsx'));
+const CandidateOverviewPage = lazy(() => import('./pages/candidate/CandidateOverviewPage.jsx'));
+const CandidateProfilePage = lazy(() => import('./pages/candidate/CandidateProfilePage.jsx'));
+const CandidateResumePage = lazy(() => import('./pages/candidate/CandidateResumePage.jsx'));
+const CandidateSavedJobsPage = lazy(() => import('./pages/candidate/CandidateSavedJobsPage.jsx'));
+const CandidateApplicationsPage = lazy(() => import('./pages/candidate/CandidateApplicationsPage.jsx'));
+const CandidateSettingsPage = lazy(() => import('./pages/candidate/CandidateSettingsPage.jsx'));
 const RecruiterDashboard = lazy(() => import('./pages/recruiter/RecruiterDashboard.jsx'));
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard.jsx'));
 const AdminLoginPage = lazy(() => import('./pages/admin/AdminLoginPage.jsx'));
 const NotFoundPage = lazy(() => import('./pages/public/NotFoundPage.jsx'));
 
 function RouteFallback() {
-  return (
-    <div className="grid min-h-[45vh] place-items-center bg-white px-4 text-center">
-      <div>
-        <span className="mx-auto block size-9 animate-spin rounded-full border-4 border-slate-200 border-t-indigo-500" aria-hidden="true" />
-        <p className="mt-4 text-sm font-medium text-slate-500">Loading page…</p>
-      </div>
-    </div>
-  );
+  return <div className="grid min-h-[45vh] place-items-center bg-white px-4 text-center"><div><span className="mx-auto block size-9 animate-spin rounded-full border-4 border-slate-200 border-t-indigo-500" aria-hidden="true"/><p className="mt-4 text-sm font-medium text-slate-500">Loading page…</p></div></div>;
 }
-
-function ScrollToTop() {
-  const location = useLocation();
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-  }, [location.pathname, location.search]);
-
-  return null;
-}
+function ScrollToTop(){const location=useLocation();useEffect(()=>{window.scrollTo({top:0,left:0,behavior:'auto'});},[location.pathname,location.search]);return null;}
 
 export default function App() {
-  return (
-    <>
-      <ScrollToTop />
-      <Suspense fallback={<RouteFallback />}>
-        <Routes>
-          <Route element={<PublicLayout />}>
-            <Route index element={<HomePage />} />
-            <Route path="jobs" element={<JobsPage />} />
-            <Route path="jobs/:slug" element={<JobDetailsPage />} />
-            <Route path="companies" element={<CompaniesPage />} />
-            <Route path="companies/:slug" element={<CompanyDetailsPage />} />
-            <Route path="employers" element={<EmployersPage />} />
-            <Route path="about" element={<AboutPage />} />
-            <Route path="contact" element={<ContactPage />} />
-            <Route path="faq" element={<FaqPage />} />
-            <Route path="privacy" element={<PrivacyPage />} />
-            <Route path="terms" element={<TermsPage />} />
-            <Route path="cookies" element={<CookiesPage />} />
-            <Route path="accessibility" element={<AccessibilityPage />} />
-            <Route path="login" element={<LoginPage />} />
-            <Route path="register" element={<RegisterPage />} />
-            <Route path="forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="reset-password" element={<ResetPasswordPage />} />
-          </Route>
-          <Route path="admin/login" element={<AdminLoginPage />} />
-          <Route path="candidate" element={<DashboardLayout role="Candidate" />}>
-            <Route index element={<CandidateDashboard />} />
-          </Route>
-          <Route path="recruiter" element={<DashboardLayout role="Recruiter" />}>
-            <Route index element={<RecruiterDashboard />} />
-          </Route>
-          <Route path="admin" element={<DashboardLayout role="Admin" loginPath="/admin/login" />}>
-            <Route index element={<AdminDashboard />} />
-          </Route>
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </Suspense>
-    </>
-  );
+  return <><ScrollToTop/><Suspense fallback={<RouteFallback/>}><Routes>
+    <Route element={<PublicLayout/>}>
+      <Route index element={<HomePage/>}/><Route path="jobs" element={<JobsPage/>}/><Route path="jobs/:slug" element={<JobDetailsPage/>}/><Route path="companies" element={<CompaniesPage/>}/><Route path="companies/:slug" element={<CompanyDetailsPage/>}/><Route path="employers" element={<EmployersPage/>}/><Route path="about" element={<AboutPage/>}/><Route path="contact" element={<ContactPage/>}/><Route path="faq" element={<FaqPage/>}/><Route path="privacy" element={<PrivacyPage/>}/><Route path="terms" element={<TermsPage/>}/><Route path="cookies" element={<CookiesPage/>}/><Route path="accessibility" element={<AccessibilityPage/>}/><Route path="login" element={<LoginPage/>}/><Route path="register" element={<RegisterPage/>}/><Route path="forgot-password" element={<ForgotPasswordPage/>}/><Route path="reset-password" element={<ResetPasswordPage/>}/>
+    </Route>
+    <Route path="admin/login" element={<AdminLoginPage/>}/>
+    <Route path="candidate" element={<DashboardLayout role="Candidate"/>}><Route index element={<CandidateOverviewPage/>}/><Route path="profile" element={<CandidateProfilePage/>}/><Route path="resume" element={<CandidateResumePage/>}/><Route path="saved-jobs" element={<CandidateSavedJobsPage/>}/><Route path="applications" element={<CandidateApplicationsPage/>}/><Route path="settings" element={<CandidateSettingsPage/>}/></Route>
+    <Route path="recruiter" element={<DashboardLayout role="Recruiter"/>}><Route index element={<RecruiterDashboard/>}/></Route>
+    <Route path="admin" element={<DashboardLayout role="Admin" loginPath="/admin/login"/>}><Route index element={<AdminDashboard/>}/></Route>
+    <Route path="*" element={<NotFoundPage/>}/>
+  </Routes></Suspense></>;
 }
