@@ -1,7 +1,7 @@
 import { ArrowUpRight, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-const logoUrl = 'https://media.githubusercontent.com/media/Shahzadkhanks19/rbserviceconnect/main/images/Royalties-Service-Connect.png';
+const logoUrl = '/images/rb-service-connect-logo.webp';
 
 const footerGroups = [
   {
@@ -35,12 +35,12 @@ const footerGroups = [
 
 export default function Footer() {
   return (
-    <footer className="bg-[#041b3d] text-white">
+    <footer className="bg-blue-950 text-white">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
         <div className="grid gap-12 lg:grid-cols-[1.35fr_2fr]">
           <div className="max-w-md">
             <Link to="/" className="inline-flex rounded-2xl bg-white px-3 py-2" aria-label="RB Service Connect home">
-              <img src={logoUrl} alt="RB Service Connect" className="h-12 w-auto object-contain" />
+              <img src={logoUrl} alt="RB Service Connect" className="h-11 w-auto object-contain" />
             </Link>
             <p className="mt-6 text-sm leading-7 text-blue-100/70">
               A modern recruitment platform built to make hiring clearer for employers and career growth simpler for candidates.
