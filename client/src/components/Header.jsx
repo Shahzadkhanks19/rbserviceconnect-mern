@@ -6,7 +6,9 @@ const navItems = [
   ['/', 'Home'],
   ['/jobs', 'Find Jobs'],
   ['/companies', 'Companies'],
+  ['/employers', 'For Employers'],
   ['/about', 'About'],
+  ['/contact', 'Contact'],
 ];
 
 const logoUrl = 'https://media.githubusercontent.com/media/Shahzadkhanks19/rbserviceconnect/main/images/Royalties-Service-Connect.png';
@@ -27,7 +29,7 @@ export default function Header() {
           <img src={logoUrl} alt="Royalties Service Connect" className="h-12 w-auto object-contain" />
         </Link>
 
-        <nav className="hidden items-center gap-8 lg:flex" aria-label="Primary navigation">
+        <nav className="hidden items-center gap-6 xl:flex" aria-label="Primary navigation">
           {navItems.map(([to, label]) => (
             <NavLink
               key={to}
@@ -41,12 +43,9 @@ export default function Header() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-3 lg:flex">
+        <div className="hidden items-center gap-3 xl:flex">
           <Link to="/login" className="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-[#f3e8a2]/35 hover:text-slate-950">
             Sign in
-          </Link>
-          <Link to="/employers" className="rounded-xl border border-emerald-300 px-4 py-2.5 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-50">
-            For employers
           </Link>
           <Link to="/register" className="rounded-xl bg-indigo-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-700/15 transition hover:bg-indigo-600">
             Create account
@@ -55,7 +54,7 @@ export default function Header() {
 
         <button
           type="button"
-          className="grid size-11 place-items-center rounded-xl border border-slate-200 bg-white text-slate-700 lg:hidden"
+          className="grid size-11 place-items-center rounded-xl border border-slate-200 bg-white text-slate-700 xl:hidden"
           aria-label={isOpen ? 'Close navigation' : 'Open navigation'}
           aria-expanded={isOpen}
           onClick={() => setIsOpen((current) => !current)}
@@ -65,7 +64,7 @@ export default function Header() {
       </div>
 
       {isOpen && (
-        <div className="border-t border-slate-200 bg-white px-4 pb-5 pt-3 shadow-xl shadow-slate-950/5 lg:hidden">
+        <div className="border-t border-slate-200 bg-white px-4 pb-5 pt-3 shadow-xl shadow-slate-950/5 xl:hidden">
           <nav className="mx-auto flex max-w-7xl flex-col gap-1" aria-label="Mobile navigation">
             {navItems.map(([to, label]) => (
               <NavLink
@@ -79,12 +78,9 @@ export default function Header() {
                 {label}
               </NavLink>
             ))}
-            <div className="mt-3 grid gap-2 border-t border-slate-200 pt-4 sm:grid-cols-3">
+            <div className="mt-3 grid gap-2 border-t border-slate-200 pt-4 sm:grid-cols-2">
               <Link to="/login" onClick={closeMenu} className="rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-700">
                 Sign in
-              </Link>
-              <Link to="/employers" onClick={closeMenu} className="rounded-xl border border-emerald-300 px-4 py-3 text-center text-sm font-semibold text-emerald-800">
-                For employers
               </Link>
               <Link to="/register" onClick={closeMenu} className="rounded-xl bg-indigo-500 px-4 py-3 text-center text-sm font-semibold text-white">
                 Create account
