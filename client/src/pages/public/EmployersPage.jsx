@@ -11,7 +11,9 @@ import {
   UserRoundSearch,
   UsersRound,
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { apiRequest } from '../../lib/api.js';
 
 const features = [
   {
@@ -48,23 +50,43 @@ const features = [
 
 const steps = [
   ['01', 'Create your employer account', 'Register as a recruiter and complete your organization profile.'],
-  ['02', 'Complete verification', 'Provide the business information required for employer review before publishing roles.'],
+  ['02', 'Complete verification', 'Your account enters review before recruiter tools and candidate data become available.'],
   ['03', 'Publish and manage jobs', 'Create openings, receive applications, and keep every candidate moving through a structured pipeline.'],
   ['04', 'Make better hiring decisions', 'Use applicant context, interview progress, and pipeline visibility to close roles with confidence.'],
 ];
 
-const recruiterStats = [
-  ['1', 'Recruiter workspace'],
-  ['6', 'Structured pipeline stages'],
-  ['24/7', 'Hiring access'],
-  ['100%', 'Role-aware workflows'],
-];
-
 export default function EmployersPage() {
+  const [overview, setOverview] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    apiRequest('/public/employers/overview')
+      .then((response) => {
+        if (!cancelled) setOverview(response);
+      })
+      .catch(() => {
+        if (!cancelled) setOverview(null);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const recruiterStats = [
+    [overview ? String(overview.activeEmployerAccounts) : '—', 'Approved employer accounts'],
+    [overview ? String(overview.registeredEmployerAccounts) : '—', 'Registered employer accounts'],
+    ['6', 'Structured pipeline stages'],
+    [overview?.approvalRequired ? 'Yes' : '—', 'Recruiter approval required'],
+  ];
+
   return (
     <>
-      <section className="overflow-hidden bg-[#879E83] text-white">
-        <div className="mx-auto grid max-w-7xl gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[1.02fr_.98fr] lg:px-8 lg:py-20">
+      <section className="relative overflow-hidden bg-[#879E83] text-white">
+        <div className="absolute -right-24 -top-24 size-80 rounded-full bg-[#F3E8A2]/25 blur-3xl" />
+        <div className="absolute -bottom-24 left-1/3 size-72 rounded-full bg-amber-300/20 blur-3xl" />
+        <div className="relative mx-auto grid max-w-7xl gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[1.02fr_.98fr] lg:px-8 lg:py-20">
           <div className="self-center">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3.5 py-2 text-xs font-semibold text-white/90">
               <Sparkles size={14} /> Built for modern hiring teams
@@ -113,7 +135,7 @@ export default function EmployersPage() {
                 ['RM', 'Rohan Mehta', 'UX systems · 4 yrs', 'Review'],
                 ['SN', 'Sara Nair', 'Research & UX · 6 yrs', 'Shortlisted'],
               ].map(([initials, name, detail, status]) => (
-                <div key={name} className="flex items-center gap-3 rounded-2xl border border-slate-200 p-4">
+                <div key={name} className="flex items-center gap-3 rounded-2xl border border-slate-200 p-4 transition hover:border-slate-300 hover:shadow-sm">
                   <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-[#F3E8A2] text-xs font-bold text-slate-800">{initials}</span>
                   <div className="min-w-0 flex-1">
                     <strong className="block truncate text-sm">{name}</strong>
@@ -161,8 +183,8 @@ export default function EmployersPage() {
 
           <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {features.map(({ icon: Icon, title, copy }) => (
-              <article key={title} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                <span className="grid size-11 place-items-center rounded-2xl bg-[#F3E8A2]/70 text-indigo-700"><Icon size={20} /></span>
+              <article key={title} className="group rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-amber-300 hover:shadow-xl hover:shadow-black/5">
+                <span className="grid size-11 place-items-center rounded-2xl bg-[#F3E8A2]/70 text-indigo-700 transition group-hover:bg-[#F3E8A2]"><Icon size={20} /></span>
                 <h3 className="mt-5 text-lg font-semibold text-slate-950">{title}</h3>
                 <p className="mt-2 text-sm leading-6 text-slate-600">{copy}</p>
               </article>
@@ -184,7 +206,7 @@ export default function EmployersPage() {
 
           <div className="space-y-3">
             {steps.map(([number, title, copy]) => (
-              <article key={number} className="flex gap-4 rounded-3xl border border-slate-200 bg-slate-50 p-5 sm:p-6">
+              <article key={number} className="flex gap-4 rounded-3xl border border-slate-200 bg-slate-50 p-5 transition hover:border-emerald-300 hover:bg-white hover:shadow-lg hover:shadow-black/5 sm:p-6">
                 <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[#879E83] text-xs font-bold text-white">{number}</span>
                 <div>
                   <h3 className="text-lg font-semibold text-slate-950">{title}</h3>
