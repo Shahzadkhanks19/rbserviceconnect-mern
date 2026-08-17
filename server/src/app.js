@@ -6,6 +6,7 @@ import { rateLimit } from 'express-rate-limit';
 import adminRoutes from './routes/adminRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import contactRoutes from './routes/contactRoutes.js';
+import publicRoutes from './routes/publicRoutes.js';
 
 const app = express();
 app.disable('x-powered-by');
@@ -18,6 +19,7 @@ app.use('/api', rateLimit({ windowMs: 15 * 60 * 1000, limit: 300, standardHeader
 app.get('/api/health', (_req, res) => res.json({ status: 'ok', service: 'rbserviceconnect-api' }));
 app.use('/api/auth', authRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/public', publicRoutes);
 app.use('/api/admin', adminRoutes);
 app.use((req, res) => res.status(404).json({ message: `Route not found: ${req.method} ${req.originalUrl}` }));
 app.use((err, _req, res, _next) => {
