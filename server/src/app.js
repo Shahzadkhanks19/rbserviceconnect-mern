@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import { rateLimit } from 'express-rate-limit';
 import adminRoutes from './routes/adminRoutes.js';
 import authRoutes from './routes/authRoutes.js';
+import candidateRoutes from './routes/candidateRoutes.js';
 import contactRoutes from './routes/contactRoutes.js';
 import publicRoutes from './routes/publicRoutes.js';
 
@@ -20,6 +21,7 @@ app.get('/api/health', (_req, res) => res.json({ status: 'ok', service: 'rbservi
 app.use('/api/auth', authRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/public', publicRoutes);
+app.use('/api/candidate', candidateRoutes);
 app.use('/api/admin', adminRoutes);
 app.use((req, res) => res.status(404).json({ message: `Route not found: ${req.method} ${req.originalUrl}` }));
 app.use((err, _req, res, _next) => {
