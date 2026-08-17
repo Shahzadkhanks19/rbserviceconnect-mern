@@ -1,6 +1,6 @@
 import { BriefcaseBusiness, ChevronDown, Clock3, FileCheck2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { jobs } from '../../data/jobs.js';
 import { apiRequest } from '../../lib/api.js';
 
@@ -8,7 +8,8 @@ const labels={applied:'Applied',reviewing:'Under review',shortlisted:'Shortliste
 const statusStyles={applied:'bg-slate-100 text-slate-700',reviewing:'bg-blue-50 text-blue-700',shortlisted:'bg-[#F3E8A2]/70 text-amber-800',interview:'bg-violet-50 text-violet-700',offered:'bg-emerald-50 text-emerald-700',hired:'bg-emerald-100 text-emerald-800',rejected:'bg-red-50 text-red-700',withdrawn:'bg-slate-100 text-slate-500'};
 
 export default function CandidateApplicationsPage(){
-  const [applications,setApplications]=useState(null);const [filter,setFilter]=useState('all');const [form,setForm]=useState({jobSlug:'',coverLetter:''});const [message,setMessage]=useState('');const [submitting,setSubmitting]=useState(false);const [showApply,setShowApply]=useState(false);
+  const [searchParams]=useSearchParams();const requestedJob=searchParams.get('job')||'';
+  const [applications,setApplications]=useState(null);const [filter,setFilter]=useState('all');const [form,setForm]=useState({jobSlug:requestedJob,coverLetter:''});const [message,setMessage]=useState('');const [submitting,setSubmitting]=useState(false);const [showApply,setShowApply]=useState(Boolean(requestedJob));
   useEffect(()=>{let cancelled=false;apiRequest('/candidate/applications').then((r)=>{if(!cancelled)setApplications(r.applications||[]);}).catch((e)=>{if(!cancelled)setMessage(e.message);});return()=>{cancelled=true;};},[]);
   const visible=useMemo(()=>!applications?[]:filter==='all'?applications:applications.filter((item)=>item.status===filter),[applications,filter]);
   const apply=async(e)=>{e.preventDefault();if(!form.jobSlug){setMessage('Choose a job first.');return;}setSubmitting(true);setMessage('');try{const r=await apiRequest('/candidate/applications',{method:'POST',body:JSON.stringify(form)});setApplications((current)=>[r.application,...(current||[])]);setForm({jobSlug:'',coverLetter:''});setShowApply(false);setMessage(r.message);}catch(err){setMessage(err.message);}finally{setSubmitting(false);}};
