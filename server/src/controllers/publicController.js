@@ -1,15 +1,16 @@
+import Application from '../models/Application.js';
+import Company from '../models/Company.js';
+import Job from '../models/Job.js';
 import User from '../models/User.js';
 
-export async function getEmployerOverview(_req, res) {
-  const [activeRecruiters, totalRecruiters] = await Promise.all([
-    User.countDocuments({ role: 'recruiter', status: 'active' }),
-    User.countDocuments({ role: 'recruiter' }),
-  ]);
+function formatSalary(salary={}){if(!salary.min&&!salary.max)return 'Salary not disclosed';const fmt=(value)=>new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:0}).format(value);return `${salary.min?fmt(salary.min):''}${salary.min&&salary.max?' – ':''}${salary.max?fmt(salary.max):''} / ${salary.period||'year'}`;}
+function locationText(location={}){return [location.city,location.state,location.country].filter(Boolean).join(', ')||'India';}
+function initials(name=''){return name.split(/\s+/).filter(Boolean).slice(0,2).map((part)=>part[0]?.toUpperCase()).join('')||'RB';}
+export function serializeJob(job){const company=job.company||{};return {id:job._id,slug:job.slug,title:job.title,company:company.name||'Employer',companySlug:company.slug||'',initials:initials(company.name),location:locationText(job.location),workplace:job.workMode==='on-site'?'On-site':job.workMode?.[0]?.toUpperCase()+job.workMode?.slice(1),type:job.employmentType?.split('-').map((p)=>p[0]?.toUpperCase()+p.slice(1)).join('-'),experience:job.experience||'Not specified',salary:formatSalary(job.salary),category:job.category||'Other',posted:job.publishedAt||job.createdAt,featured:Boolean(job.featured),verified:company.verificationStatus==='verified',summary:job.summary||'',skills:job.skills||[],description:[job.description].filter(Boolean),responsibilities:job.responsibilities||[],requirements:job.requirements||[],benefits:job.benefits||[]};}
 
-  return res.json({
-    activeEmployerAccounts: activeRecruiters,
-    registeredEmployerAccounts: totalRecruiters,
-    approvalRequired: true,
-    recruiterRegistrationOpen: true,
-  });
-}
+export async function getEmployerOverview(_req,res){const [activeRecruiters,totalRecruiters]=await Promise.all([User.countDocuments({role:'recruiter',status:'active'}),User.countDocuments({role:'recruiter'})]);return res.json({activeEmployerAccounts:activeRecruiters,registeredEmployerAccounts:totalRecruiters,approvalRequired:true,recruiterRegistrationOpen:true});}
+export async function listPublicJobs(req,res){const query={status:'published'};if(req.query.company)query.company=req.query.company;const jobs=await Job.find(query).populate('company','name slug verificationStatus industry size location logoUrl').sort({featured:-1,publishedAt:-1,createdAt:-1}).lean();return res.json({jobs:jobs.map(serializeJob)});}
+export async function getPublicJob(req,res){const job=await Job.findOne({slug:req.params.slug,status:'published'}).populate('company','name slug verificationStatus industry size location logoUrl website description').lean();if(!job)return res.status(404).json({message:'Job not found.'});return res.json({job:serializeJob(job)});}
+export async function listPublicCompanies(_req,res){const companies=await Company.find({verificationStatus:'verified'}).sort({createdAt:-1}).lean();const ids=companies.map((c)=>c._id);const counts=await Job.aggregate([{$match:{company:{$in:ids},status:'published'}},{$group:{_id:'$company',count:{$sum:1}}}]);const map=new Map(counts.map((x)=>[String(x._id),x.count]));return res.json({companies:companies.map((c)=>({...c,openRoles:map.get(String(c._id))||0,initials:initials(c.name)}))});}
+export async function getPublicCompany(req,res){const company=await Company.findOne({slug:req.params.slug,verificationStatus:'verified'}).lean();if(!company)return res.status(404).json({message:'Company not found.'});const jobs=await Job.find({company:company._id,status:'published'}).populate('company','name slug verificationStatus').sort({publishedAt:-1}).lean();return res.json({company:{...company,initials:initials(company.name),openRoles:jobs.length},jobs:jobs.map(serializeJob)});}
+export async function getPublicJobStats(_req,res){const [jobs,companies,applications]=await Promise.all([Job.countDocuments({status:'published'}),Company.countDocuments({verificationStatus:'verified'}),Application.countDocuments()]);return res.json({jobs,companies,applications});}
