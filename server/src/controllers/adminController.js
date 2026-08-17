@@ -1,4 +1,5 @@
 import User from '../models/User.js';
+import { brandedEmail, sendEmail } from '../services/emailService.js';
 
 const allowedRecruiterStatuses = ['pending', 'active', 'suspended'];
 
@@ -30,8 +31,37 @@ export async function updateRecruiterStatus(req, res) {
     return res.status(404).json({ message: 'Recruiter account not found' });
   }
 
+  const previousStatus = recruiter.status;
   recruiter.status = status;
   await recruiter.save({ validateBeforeSave: false });
+
+  if (status === 'active' && previousStatus !== 'active') {
+    const loginUrl = `${process.env.CLIENT_URL}/login`;
+    const html = brandedEmail({
+      eyebrow: 'Recruiter access',
+      title: 'Your recruiter account is approved',
+      greeting: `Hello ${recruiter.firstName},`,
+      paragraphs: [
+        'Your Royalties Service Connect recruiter account has been reviewed and approved.',
+        'You can now sign in to your recruiter workspace and continue setting up your employer profile and hiring activity.',
+      ],
+      buttonLabel: 'Open recruiter workspace',
+      buttonUrl: loginUrl,
+      note: 'If you were not expecting this account approval, please contact the RB Service Connect team through the website.',
+    });
+    const text = `Hello ${recruiter.firstName},\n\nYour Royalties Service Connect recruiter account has been approved.\n\nSign in: ${loginUrl}\n\nYou can now access your recruiter workspace.`;
+
+    try {
+      await sendEmail({
+        to: recruiter.email,
+        subject: 'Your RB Service Connect recruiter account is approved',
+        html,
+        text,
+      });
+    } catch (error) {
+      console.error('Recruiter approval email failed:', error);
+    }
+  }
 
   return res.json({
     message: status === 'active' ? 'Recruiter approved successfully' : `Recruiter status changed to ${status}`,
