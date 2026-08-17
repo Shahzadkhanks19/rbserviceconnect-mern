@@ -1,27 +1,42 @@
 @import "tailwindcss";
 
 @theme {
-  --color-indigo-50: #ebf1f8;
-  --color-indigo-100: #cedbee;
-  --color-indigo-200: #9eb1d1;
-  --color-indigo-300: #6b92d1;
-  --color-indigo-400: #4466a6;
-  --color-indigo-500: #094dc2;
-  --color-indigo-600: #0433ad;
-  --color-indigo-700: #162746;
-  --color-indigo-800: #0e1c35;
-  --color-indigo-900: #09152c;
-  --color-indigo-950: #050d25;
+  /* Original Royalties Service Connect warm brand palette. */
+  --color-indigo-50: #fff9ec;
+  --color-indigo-100: #fdf0c8;
+  --color-indigo-200: #f9dc88;
+  --color-indigo-300: #f4c451;
+  --color-indigo-400: #f0ad38;
+  --color-indigo-500: #ed9b2f;
+  --color-indigo-600: #d88423;
+  --color-indigo-700: #a96322;
+  --color-indigo-800: #7d4a20;
+  --color-indigo-900: #53331d;
+  --color-indigo-950: #2a190d;
 
-  --color-blue-50: #ebf1f8;
-  --color-blue-100: #cedbee;
-  --color-blue-200: #9eb1d1;
-  --color-blue-300: #6b92d1;
-  --color-blue-400: #4466a6;
-  --color-blue-500: #094dc2;
-  --color-blue-600: #0433ad;
-  --color-blue-700: #0433ad;
-  --color-blue-800: #162746;
-  --color-blue-900: #09152c;
-  --color-blue-950: #050d25;
+  /* Existing blue utilities are intentionally remapped to the same warm accent. */
+  --color-blue-50: #fff9ec;
+  --color-blue-100: #fdf0c8;
+  --color-blue-200: #f9dc88;
+  --color-blue-300: #f4c451;
+  --color-blue-400: #f0ad38;
+  --color-blue-500: #ed9b2f;
+  --color-blue-600: #d88423;
+  --color-blue-700: #a96322;
+  --color-blue-800: #7d4a20;
+  --color-blue-900: #53331d;
+  --color-blue-950: #2a190d;
+
+  /* Sage green from the original website footer/buttons. */
+  --color-emerald-50: #f2f5f1;
+  --color-emerald-100: #e0e8de;
+  --color-emerald-200: #c5d3c1;
+  --color-emerald-300: #a8bda4;
+  --color-emerald-400: #95aa91;
+  --color-emerald-500: #879e83;
+  --color-emerald-600: #748b70;
+  --color-emerald-700: #5e735b;
+  --color-emerald-800: #4c5e49;
+  --color-emerald-900: #3f4d3d;
+  --color-emerald-950: #222b21;
 }
