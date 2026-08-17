@@ -1,4 +1,4 @@
-import { BriefcaseBusiness, LayoutDashboard, LogOut, Menu } from 'lucide-react';
+import { LayoutDashboard, LogOut, Menu } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { apiRequest } from '../lib/api.js';
