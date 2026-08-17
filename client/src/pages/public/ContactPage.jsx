@@ -1,30 +1,133 @@
-import { Mail, MapPin, Phone } from 'lucide-react';
+import { CheckCircle2, HelpCircle, MessageSquareText, ShieldCheck } from 'lucide-react';
+import { useState } from 'react';
+import { apiRequest } from '../../lib/api.js';
+
+const topics = [
+  ['general', 'General enquiry'],
+  ['candidate', 'Candidate support'],
+  ['recruiter', 'Recruiter support'],
+  ['verification', 'Employer verification'],
+  ['accessibility', 'Accessibility issue'],
+];
 
 export default function ContactPage() {
+  const [form, setForm] = useState({ name: '', email: '', topic: 'general', message: '' });
+  const [status, setStatus] = useState({ type: '', message: '' });
+  const [submitting, setSubmitting] = useState(false);
+
+  const updateField = (field) => (event) => {
+    setForm((current) => ({ ...current, [field]: event.target.value }));
+    if (status.type) setStatus({ type: '', message: '' });
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setStatus({ type: '', message: '' });
+
+    if (!form.name.trim() || !form.email.trim() || form.message.trim().length < 10) {
+      setStatus({ type: 'error', message: 'Enter your name, a valid email address, and a message of at least 10 characters.' });
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      const response = await apiRequest('/contact', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: form.name.trim(),
+          email: form.email.trim(),
+          topic: form.topic,
+          message: form.message.trim(),
+        }),
+      });
+      setStatus({ type: 'success', message: response?.message || 'Thanks. Your message has been received.' });
+      setForm({ name: '', email: '', topic: 'general', message: '' });
+    } catch (requestError) {
+      setStatus({ type: 'error', message: requestError.message });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
-    <section className="bg-slate-50 py-16 sm:py-20">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[.8fr_1.2fr] lg:px-8">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-600">Contact</p>
-          <h1 className="mt-3 text-4xl font-semibold tracking-[-0.045em] text-slate-950 sm:text-5xl">Talk to the RB Service Connect team.</h1>
-          <p className="mt-5 max-w-xl leading-8 text-slate-600">Questions about job applications, recruiter accounts, employer verification, or the platform? Send us a message and we’ll route it to the right team.</p>
-          <div className="mt-8 space-y-4 text-sm text-slate-600">
-            <span className="flex items-center gap-3"><Mail size={17} className="text-indigo-600" /> connect@rbserviceconnect.com</span>
-            <span className="flex items-center gap-3"><Phone size={17} className="text-indigo-600" /> +91 99999 99999</span>
-            <span className="flex items-center gap-3"><MapPin size={17} className="text-indigo-600" /> India</span>
+    <>
+      <section className="border-b border-black/5 bg-[#F3E8A2]/55">
+        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[.9fr_1.1fr] lg:items-center lg:px-8 lg:py-16">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-indigo-700">Contact RB Service Connect</p>
+            <h1 className="mt-4 text-4xl font-semibold tracking-[-0.05em] text-slate-950 sm:text-5xl">Tell us what you need help with.</h1>
+            <p className="mt-5 max-w-xl text-base leading-8 text-slate-600">Use the form for candidate support, recruiter questions, employer verification, accessibility issues, or general platform enquiries. Your message is stored securely for review by the appropriate team.</p>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-3">
+            {[
+              [MessageSquareText, 'One support route', 'Use one form and choose the right topic.'],
+              [ShieldCheck, 'Structured handling', 'Messages are stored for platform support review.'],
+              [HelpCircle, 'Candidate & employer help', 'Support both sides of the recruitment workflow.'],
+            ].map(([Icon, title, copy]) => (
+              <article key={title} className="rounded-2xl border border-black/5 bg-white/80 p-5">
+                <span className="grid size-10 place-items-center rounded-xl bg-[#879E83] text-white"><Icon size={18} /></span>
+                <h2 className="mt-4 text-sm font-semibold text-slate-950">{title}</h2>
+                <p className="mt-2 text-xs leading-5 text-slate-500">{copy}</p>
+              </article>
+            ))}
           </div>
         </div>
+      </section>
 
-        <form className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-          <div className="grid gap-5 sm:grid-cols-2">
-            <label className="text-sm font-semibold text-slate-700">Name<input type="text" className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-normal text-slate-950 outline-none transition focus:border-indigo-400" placeholder="Your name" /></label>
-            <label className="text-sm font-semibold text-slate-700">Email<input type="email" className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-normal text-slate-950 outline-none transition focus:border-indigo-400" placeholder="you@example.com" /></label>
-          </div>
-          <label className="mt-5 block text-sm font-semibold text-slate-700">Topic<select className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-normal text-slate-950 outline-none transition focus:border-indigo-400"><option>General enquiry</option><option>Candidate support</option><option>Recruiter support</option><option>Employer verification</option></select></label>
-          <label className="mt-5 block text-sm font-semibold text-slate-700">Message<textarea rows="6" className="mt-2 w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm font-normal text-slate-950 outline-none transition focus:border-indigo-400" placeholder="How can we help?" /></label>
-          <button type="submit" className="mt-5 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-500">Send message</button>
-        </form>
-      </div>
-    </section>
+      <section className="bg-slate-50 py-12 sm:py-16">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[.7fr_1.3fr] lg:px-8">
+          <aside className="self-start rounded-[2rem] bg-[#879E83] p-7 sm:p-8">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/80">Before you send</p>
+            <h2 className="mt-3 text-2xl font-semibold tracking-[-0.035em] text-slate-950">Choose the most relevant topic.</h2>
+            <p className="mt-3 text-sm leading-7 text-slate-900/75">That helps route your message correctly. Please avoid including passwords, payment details, or unnecessary sensitive personal information.</p>
+            <div className="mt-6 space-y-3">
+              {['Candidate account or application help', 'Recruiter access and employer verification', 'General platform or accessibility questions'].map((item) => (
+                <div key={item} className="flex gap-3 rounded-2xl bg-white/20 p-4 text-sm font-medium text-slate-950">
+                  <CheckCircle2 size={18} className="mt-0.5 shrink-0" /> {item}
+                </div>
+              ))}
+            </div>
+          </aside>
+
+          <form onSubmit={handleSubmit} className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8" noValidate>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-700">Send a message</p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-slate-950">We’ll route it to the right place.</h2>
+            </div>
+
+            {status.message && (
+              <div role={status.type === 'error' ? 'alert' : 'status'} className={`mt-5 rounded-2xl border px-4 py-3 text-sm ${status.type === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-red-200 bg-red-50 text-red-700'}`}>
+                {status.message}
+              </div>
+            )}
+
+            <div className="mt-6 grid gap-5 sm:grid-cols-2">
+              <Field label="Name"><input value={form.name} onChange={updateField('name')} type="text" autoComplete="name" className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-normal text-slate-950 outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100" placeholder="Your name" /></Field>
+              <Field label="Email"><input value={form.email} onChange={updateField('email')} type="email" autoComplete="email" className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-normal text-slate-950 outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100" placeholder="you@example.com" /></Field>
+            </div>
+
+            <Field label="Topic" className="mt-5">
+              <select value={form.topic} onChange={updateField('topic')} className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-normal text-slate-950 outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100">
+                {topics.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+              </select>
+            </Field>
+
+            <Field label="Message" className="mt-5">
+              <textarea value={form.message} onChange={updateField('message')} rows="6" className="w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm font-normal text-slate-950 outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100" placeholder="How can we help?" />
+            </Field>
+
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-xs leading-5 text-slate-400">Do not include passwords or unnecessary sensitive information.</p>
+              <button type="submit" disabled={submitting} className="rounded-xl bg-indigo-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-400 disabled:cursor-not-allowed disabled:opacity-60">{submitting ? 'Sending…' : 'Send message'}</button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </>
   );
+}
+
+function Field({ label, className = '', children }) {
+  return <label className={`block text-sm font-semibold text-slate-700 ${className}`}><span className="mb-2 block">{label}</span>{children}</label>;
 }
