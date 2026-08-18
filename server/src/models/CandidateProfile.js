@@ -15,8 +15,15 @@ const candidateProfileSchema = new mongoose.Schema({
   preferences:{
     jobTypes:{type:[String],default:[]}, workplaces:{type:[String],default:[]}, preferredLocations:{type:[String],default:[]}, minimumSalary:{type:String,trim:true,maxlength:60,default:''}, openToWork:{type:Boolean,default:true}
   },
+  privacy:{
+    discoverableToRecruiters:{type:Boolean,default:true,index:true},
+    showResumeToRecruiters:{type:Boolean,default:true},
+    jobAlertsEnabled:{type:Boolean,default:true},
+    recruiterMessagesEnabled:{type:Boolean,default:true}
+  },
   resume:{name:{type:String,trim:true,maxlength:255,default:''},url:{type:String,trim:true,maxlength:1000,default:''},publicId:{type:String,trim:true,maxlength:500,default:''},source:{type:String,enum:['','url','upload'],default:''},updatedAt:{type:Date,default:null}},
   savedJobs:{type:[String],default:[]}
 },{timestamps:true});
 
+candidateProfileSchema.index({'privacy.discoverableToRecruiters':1,'preferences.openToWork':1,updatedAt:-1});
 export default mongoose.model('CandidateProfile',candidateProfileSchema);
