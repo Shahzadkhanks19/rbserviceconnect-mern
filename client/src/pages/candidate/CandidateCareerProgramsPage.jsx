@@ -1,4 +1,4 @@
-import { Check,ChevronRight,CircleCheckBig,HandCoins,ShieldCheck,Sparkles,Target,UsersRound } from 'lucide-react';
+import { Check,ChevronRight,CircleCheckBig,ShieldCheck,Sparkles,Target,UsersRound } from 'lucide-react';
 import { useEffect,useMemo,useState } from 'react';
 import { apiRequest } from '../../lib/api.js';
 
