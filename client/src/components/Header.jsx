@@ -1,4 +1,4 @@
-import { Bell,BriefcaseBusiness,Building2,CalendarClock,ChevronDown,FileText,FolderHeart,LogOut,Menu,MessageSquare,Search,Settings,UserRound,UsersRound,X } from 'lucide-react';
+import { Bell,BriefcaseBusiness,Building2,CalendarClock,ChevronDown,FileText,FolderHeart,LogOut,Menu,MessageSquare,Rocket,Search,Settings,UserRound,UsersRound,X } from 'lucide-react';
 import { useEffect,useRef,useState } from 'react';
 import { Link,NavLink,useNavigate } from 'react-router-dom';
 import { apiRequest } from '../lib/api.js';
@@ -7,8 +7,8 @@ import { getSocket } from '../lib/socket.js';
 const publicNav=[['/','Home'],['/jobs','Find Jobs'],['/companies','Companies'],['/employers','For Employers'],['/about','About'],['/contact','Contact']];
 const candidateNav=[['/jobs','Find Jobs'],['/companies','Companies'],['/candidate/applications','Applications'],['/candidate/saved-jobs','Saved Jobs']];
 const recruiterNav=[['/recruiter/jobs','My Jobs'],['/recruiter/applicants','Applicants'],['/recruiter/candidate-search','Find Candidates'],['/recruiter/interviews','Interviews']];
-const candidateMenu=[['/candidate/profile','My profile',UserRound],['/candidate/resume','Resume',FileText],['/candidate/applications','Applications',BriefcaseBusiness],['/candidate/saved-jobs','Saved jobs',BriefcaseBusiness],['/candidate/job-alerts','Job alerts',Bell],['/candidate/interviews','Interviews',CalendarClock],['/candidate/settings','Settings',Settings]];
-const recruiterMenu=[['/recruiter/company','Company profile',Building2],['/recruiter/jobs','Manage jobs',BriefcaseBusiness],['/recruiter/applicants','Applicants',UsersRound],['/recruiter/candidate-search','Candidate search',Search],['/recruiter/talent-pools','Talent pools',FolderHeart],['/recruiter/interviews','Interviews',CalendarClock],['/recruiter/settings','Settings',Settings]];
+const candidateMenu=[['/candidate/profile','My profile',UserRound],['/candidate/resume','Resume',FileText],['/candidate/applications','Applications',BriefcaseBusiness],['/candidate/saved-jobs','Saved jobs',BriefcaseBusiness],['/candidate/job-alerts','Job alerts',Bell],['/candidate/interviews','Interviews',CalendarClock],['/candidate/promotions','Boost profile',Rocket],['/candidate/settings','Settings',Settings]];
+const recruiterMenu=[['/recruiter/company','Company profile',Building2],['/recruiter/jobs','Manage jobs',BriefcaseBusiness],['/recruiter/applicants','Applicants',UsersRound],['/recruiter/candidate-search','Candidate search',Search],['/recruiter/talent-pools','Talent pools',FolderHeart],['/recruiter/interviews','Interviews',CalendarClock],['/recruiter/promotions','Promote jobs',Rocket],['/recruiter/settings','Settings',Settings]];
 const logoUrl='https://media.githubusercontent.com/media/Shahzadkhanks19/rbserviceconnect/main/images/Royalties-Service-Connect.png';
 
 export default function Header({sessionUser=null}){
