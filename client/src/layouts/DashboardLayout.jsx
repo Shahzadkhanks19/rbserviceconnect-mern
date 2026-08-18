@@ -1,11 +1,11 @@
-import { Activity, BarChart3, Bookmark, BriefcaseBusiness, Building2, FileText, LayoutDashboard, LogOut, Mail, Menu, Settings, ShieldCheck, UserRound, Users, UsersRound, X } from 'lucide-react';
+import { Activity, BarChart3, Bell, BellRing, Bookmark, BriefcaseBusiness, Building2, FileText, LayoutDashboard, LogOut, Mail, Menu, Search, Settings, ShieldCheck, UserRound, Users, UsersRound, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { apiRequest } from '../lib/api.js';
 
 const logoUrl = 'https://media.githubusercontent.com/media/Shahzadkhanks19/rbserviceconnect/main/images/Royalties-Service-Connect.png';
-const candidateNav = [['','Overview',LayoutDashboard],['profile','Profile',UserRound],['resume','Resume',FileText],['saved-jobs','Saved jobs',Bookmark],['applications','Applications',BriefcaseBusiness],['settings','Settings',Settings]];
-const recruiterNav = [['','Overview',LayoutDashboard],['company','Company profile',Building2],['jobs','Jobs',BriefcaseBusiness],['applicants','Applicants',UsersRound],['settings','Settings',Settings]];
+const candidateNav = [['','Overview',LayoutDashboard],['profile','Profile',UserRound],['resume','Resume',FileText],['saved-jobs','Saved jobs',Bookmark],['applications','Applications',BriefcaseBusiness],['job-alerts','Job alerts',BellRing],['notifications','Notifications',Bell],['settings','Settings',Settings]];
+const recruiterNav = [['','Overview',LayoutDashboard],['company','Company profile',Building2],['jobs','Jobs',BriefcaseBusiness],['applicants','Applicants',UsersRound],['candidate-search','Candidate search',Search],['notifications','Notifications',Bell],['settings','Settings',Settings]];
 const adminNav = [['','Overview',LayoutDashboard],['recruiters','Recruiter approvals',ShieldCheck],['users','Users',Users],['companies','Companies',Building2],['jobs','Jobs',BriefcaseBusiness],['applications','Applications',FileText],['contacts','Contact enquiries',Mail],['analytics','Analytics',BarChart3],['activity','Activity log',Activity],['settings','Settings',Settings]];
 const defaultNav = [['','Overview',LayoutDashboard]];
 
