@@ -1,1 +1,0 @@
-The actual production logo asset is stored as client/public/images/rb-service-connect-logo.webp. Source: original RB Service Connect branding reference. Raster assets should remain WebP-first.
