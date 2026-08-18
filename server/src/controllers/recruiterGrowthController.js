@@ -1,7 +1,6 @@
 import Application from '../models/Application.js';
 import CandidateProfile from '../models/CandidateProfile.js';
 import Interview from '../models/Interview.js';
-import Job from '../models/Job.js';
 import TalentPool from '../models/TalentPool.js';
 import { brandedEmail, sendEmail } from '../services/emailService.js';
 import { createNotification } from '../services/notificationService.js';
