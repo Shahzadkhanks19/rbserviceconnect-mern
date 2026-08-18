@@ -17,8 +17,12 @@ const limiter=(limit,message)=>rateLimit({windowMs:15*60*1000,limit,standardHead
 
 app.disable('x-powered-by');
 if(production)app.set('trust proxy',1);
-app.use(helmet({crossOriginResourcePolicy:{policy:'cross-origin'}}));
-app.use(cors({origin:clientUrl,credentials:true,methods:['GET','POST','PUT','PATCH','DELETE','OPTIONS']}));
+app.use(helmet({
+  crossOriginResourcePolicy:{policy:'cross-origin'},
+  referrerPolicy:{policy:'strict-origin-when-cross-origin'},
+  hsts:production?{maxAge:31536000,includeSubDomains:true,preload:false}:false,
+}));
+app.use(cors({origin:clientUrl,credentials:true,methods:['GET','POST','PUT','PATCH','DELETE','OPTIONS'],allowedHeaders:['Content-Type','Accept']}));
 // Resume/message uploads are base64 encoded and independently type/size validated by their controllers.
 app.use(express.json({limit:'7mb'}));
 app.use(express.urlencoded({extended:false,limit:'1mb'}));
@@ -29,7 +33,7 @@ app.use('/api/auth/register',limiter(8,'Too many registration attempts. Please w
 app.use('/api/auth/forgot-password',limiter(5,'Too many password reset requests. Please wait before trying again.'));
 app.use('/api/auth/reset-password',limiter(8,'Too many password reset attempts. Please wait before trying again.'));
 app.use('/api/contact',limiter(8,'Too many contact submissions. Please wait before trying again.'));
-app.get('/api/health',(_req,res)=>res.json({status:'ok',service:'rbserviceconnect-api'}));
+app.get('/api/health',(_req,res)=>res.set('Cache-Control','no-store').json({status:'ok',service:'rbserviceconnect-api'}));
 app.use('/api/auth',authRoutes);app.use('/api/contact',contactRoutes);app.use('/api/public',publicRoutes);app.use('/api/candidate',candidateRoutes);app.use('/api/recruiter',recruiterRoutes);app.use('/api/admin',adminRoutes);
 app.use((req,res)=>res.status(404).json({message:`Route not found: ${req.method} ${req.originalUrl}`}));
 app.use((err,_req,res,_next)=>{console.error(production?err.message:err);res.status(err.status||500).json({message:production?'Something went wrong. Please try again.':err.message});});
