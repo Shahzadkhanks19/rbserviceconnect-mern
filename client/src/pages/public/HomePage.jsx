@@ -23,7 +23,9 @@ import {
   UserRoundCheck,
   UsersRound,
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { apiRequest } from '../../lib/api.js';
 
 const categories = [
   { icon: Code2, title: 'Technology', copy: 'Engineering, product & data' },
@@ -32,12 +34,6 @@ const categories = [
   { icon: Stethoscope, title: 'Healthcare', copy: 'Clinical, operations & support' },
   { icon: Landmark, title: 'Operations', copy: 'Admin, logistics & management' },
   { icon: Headphones, title: 'Customer Success', copy: 'Support, service & retention' },
-];
-
-const featuredJobs = [
-  ['ND', 'Northstar Digital', 'Senior Frontend Developer', 'Bengaluru · Hybrid', '4–7 years', '₹18L – ₹26L'],
-  ['AL', 'Aster Labs', 'Product Designer', 'Remote · India', '3–5 years', '₹14L – ₹20L'],
-  ['VC', 'Verde Commerce', 'Growth Marketing Manager', 'Gurugram · On-site', '5–8 years', '₹16L – ₹24L'],
 ];
 
 const candidateSteps = [
@@ -66,7 +62,35 @@ const fadeUp = {
   transition: { duration: 0.55, ease: 'easeOut' },
 };
 
+function postedLabel(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Recently posted';
+  const days = Math.max(0, Math.floor((Date.now() - date.getTime()) / 86400000));
+  if (days === 0) return 'Posted today';
+  if (days === 1) return 'Posted yesterday';
+  if (days < 7) return `Posted ${days} days ago`;
+  if (days < 14) return 'Posted 1 week ago';
+  return `Posted ${Math.floor(days / 7)} weeks ago`;
+}
+
 export default function HomePage() {
+  const [featuredJobs, setFeaturedJobs] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    apiRequest('/public/jobs')
+      .then((response) => {
+        if (cancelled) return;
+        const jobs = response?.jobs || [];
+        const featured = jobs.filter((job) => job.featured);
+        setFeaturedJobs((featured.length ? featured : jobs).slice(0, 3));
+      })
+      .catch(() => {
+        if (!cancelled) setFeaturedJobs([]);
+      });
+    return () => { cancelled = true; };
+  }, []);
+
   return (
     <>
       <section className="relative overflow-hidden bg-slate-950 text-white">
@@ -163,19 +187,25 @@ export default function HomePage() {
       <section className="bg-white py-20 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <motion.div {...fadeUp} className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-            <div className="max-w-2xl"><p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-600">Featured opportunities</p><h2 className="mt-3 text-4xl font-semibold tracking-[-0.04em] text-slate-950 sm:text-5xl">Roles worth exploring.</h2><p className="mt-4 leading-7 text-slate-600">Clear cards give candidates the context they need before deciding where to spend their time.</p></div>
+            <div className="max-w-2xl"><p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-600">Featured opportunities</p><h2 className="mt-3 text-4xl font-semibold tracking-[-0.04em] text-slate-950 sm:text-5xl">Roles worth exploring.</h2><p className="mt-4 leading-7 text-slate-600">Live openings from verified employers, prioritized by featured roles and recency.</p></div>
             <Link to="/jobs" className="inline-flex items-center gap-2 text-sm font-semibold text-indigo-600 hover:text-indigo-500">View all jobs <ArrowRight size={16} /></Link>
           </motion.div>
-          <div className="mt-10 grid gap-5 lg:grid-cols-3">
-            {featuredJobs.map(([initials, company, title, location, experience, salary], index) => (
-              <motion.article key={title} initial={{ opacity: 0, y: 22 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: index * 0.07 }} className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-indigo-200 hover:shadow-xl hover:shadow-slate-950/5">
-                <div className="flex items-start justify-between gap-4"><span className="grid size-12 place-items-center rounded-2xl bg-slate-950 text-sm font-bold text-white">{initials}</span><span className="rounded-full bg-emerald-50 px-3 py-1.5 text-[11px] font-bold text-emerald-700">Actively hiring</span></div>
-                <div className="mt-6"><p className="text-xs font-semibold text-slate-500">{company}</p><h3 className="mt-2 text-xl font-semibold tracking-[-0.025em] text-slate-950">{title}</h3></div>
-                <div className="mt-5 space-y-2.5 text-sm text-slate-500"><span className="flex items-center gap-2"><MapPin size={15} /> {location}</span><span className="flex items-center gap-2"><BriefcaseBusiness size={15} /> {experience} · Full-time</span><span className="flex items-center gap-2"><CircleDollarSign size={15} /> {salary}</span></div>
-                <div className="mt-6 flex items-center justify-between border-t border-slate-200 pt-5"><span className="flex items-center gap-2 text-xs text-slate-400"><Clock3 size={14} /> Recently posted</span><Link to="/jobs" className="inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600">View role <ArrowRight size={15} /></Link></div>
-              </motion.article>
-            ))}
-          </div>
+          {featuredJobs===null ? (
+            <div className="mt-10 grid gap-5 lg:grid-cols-3" role="status" aria-live="polite">{[0,1,2].map((item)=><div key={item} className="h-72 animate-pulse rounded-2xl border border-slate-200 bg-slate-100"/>)}</div>
+          ) : featuredJobs.length ? (
+            <div className="mt-10 grid gap-5 lg:grid-cols-3">
+              {featuredJobs.map((job, index) => (
+                <motion.article key={job.id||job.slug} initial={{ opacity: 0, y: 22 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: index * 0.07 }} className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-indigo-200 hover:shadow-xl hover:shadow-slate-950/5">
+                  <div className="flex items-start justify-between gap-4"><span className="grid size-12 place-items-center rounded-2xl bg-slate-950 text-sm font-bold text-white">{job.initials}</span><span className={`rounded-full px-3 py-1.5 text-[11px] font-bold ${job.acceptingApplications?'bg-emerald-50 text-emerald-700':'bg-amber-50 text-amber-700'}`}>{job.acceptingApplications?'Actively hiring':'Reviewing applicants'}</span></div>
+                  <div className="mt-6"><p className="text-xs font-semibold text-slate-500">{job.company}</p><h3 className="mt-2 text-xl font-semibold tracking-[-0.025em] text-slate-950">{job.title}</h3></div>
+                  <div className="mt-5 space-y-2.5 text-sm text-slate-500"><span className="flex items-center gap-2"><MapPin size={15}/> {job.location} · {job.workplace}</span><span className="flex items-center gap-2"><BriefcaseBusiness size={15}/> {job.experience} · {job.type}</span><span className="flex items-center gap-2"><CircleDollarSign size={15}/> {job.salary}</span></div>
+                  <div className="mt-6 flex items-center justify-between border-t border-slate-200 pt-5"><span className="flex items-center gap-2 text-xs text-slate-400"><Clock3 size={14}/> {postedLabel(job.posted)}</span><Link to={`/jobs/${job.slug}`} className="inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600">View role <ArrowRight size={15}/></Link></div>
+                </motion.article>
+              ))}
+            </div>
+          ) : (
+            <div className="mt-10 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center"><BriefcaseBusiness size={26} className="mx-auto text-slate-300"/><h3 className="mt-3 font-semibold text-slate-950">New opportunities are being prepared.</h3><p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-500">There are no public openings right now. Browse Jobs later or create a candidate account to set up matching job alerts.</p><Link to="/jobs" className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-indigo-600">Browse jobs <ArrowRight size={15}/></Link></div>
+          )}
         </div>
       </section>
 
