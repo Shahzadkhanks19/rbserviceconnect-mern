@@ -1,43 +1,4 @@
 import { Router } from 'express';
-import {
-  deleteContact,
-  getAnalytics,
-  getDashboard,
-  getSettings,
-  listActivity,
-  listApplications,
-  listCompanies,
-  listContacts,
-  listJobs,
-  listRecruiters,
-  listUsers,
-  updateCompanyStatus,
-  updateContactStatus,
-  updateJobStatus,
-  updateRecruiterStatus,
-  updateSettings,
-  updateUserStatus,
-} from '../controllers/adminController.js';
+import {cancelPromotion,deleteContact,getAnalytics,getDashboard,getPromotionManagement,getSettings,listActivity,listApplications,listCompanies,listContacts,listJobs,listRecruiters,listUsers,updateCompanyStatus,updateContactStatus,updateJobStatus,updateRecruiterStatus,updateSettings,updateUserStatus} from '../controllers/adminController.js';
 import { allowRoles, requireAuth } from '../middleware/auth.js';
-
-const router=Router();
-router.use(requireAuth,allowRoles('admin'));
-router.get('/dashboard',getDashboard);
-router.get('/users',listUsers);
-router.patch('/users/:id/status',updateUserStatus);
-router.get('/recruiters',listRecruiters);
-router.patch('/recruiters/:id/status',updateRecruiterStatus);
-router.get('/companies',listCompanies);
-router.patch('/companies/:id/status',updateCompanyStatus);
-router.get('/jobs',listJobs);
-router.patch('/jobs/:id/status',updateJobStatus);
-router.get('/applications',listApplications);
-router.get('/contacts',listContacts);
-router.patch('/contacts/:id/status',updateContactStatus);
-router.delete('/contacts/:id',deleteContact);
-router.get('/analytics',getAnalytics);
-router.get('/activity',listActivity);
-router.get('/settings',getSettings);
-router.put('/settings',updateSettings);
-
-export default router;
+const router=Router();router.use(requireAuth,allowRoles('admin'));router.get('/dashboard',getDashboard);router.get('/users',listUsers);router.patch('/users/:id/status',updateUserStatus);router.get('/recruiters',listRecruiters);router.patch('/recruiters/:id/status',updateRecruiterStatus);router.get('/companies',listCompanies);router.patch('/companies/:id/status',updateCompanyStatus);router.get('/jobs',listJobs);router.patch('/jobs/:id/status',updateJobStatus);router.get('/applications',listApplications);router.get('/contacts',listContacts);router.patch('/contacts/:id/status',updateContactStatus);router.delete('/contacts/:id',deleteContact);router.get('/analytics',getAnalytics);router.get('/promotions',getPromotionManagement);router.patch('/promotions/:id/cancel',cancelPromotion);router.get('/activity',listActivity);router.get('/settings',getSettings);router.put('/settings',updateSettings);export default router;
