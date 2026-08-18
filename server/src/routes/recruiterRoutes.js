@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { allowRoles, requireAuth } from '../middleware/auth.js';
 import { changeJobStatus, createJob, deleteJob, getCompanyProfile, getOverview, getSettings, listApplicants, listJobs, saveCompanyProfile, updateApplicationStatus, updateJob, updateSettings } from '../controllers/recruiterController.js';
+import { getNotifications, readAllNotifications, readNotification, searchCandidates } from '../controllers/recruiterDiscoveryController.js';
 const router=Router();
 router.use(requireAuth,allowRoles('recruiter'));
 router.get('/overview',getOverview);
@@ -13,6 +14,10 @@ router.patch('/jobs/:id/status',changeJobStatus);
 router.delete('/jobs/:id',deleteJob);
 router.get('/applicants',listApplicants);
 router.patch('/applications/:id/status',updateApplicationStatus);
+router.get('/candidates/search',searchCandidates);
+router.get('/notifications',getNotifications);
+router.patch('/notifications/read-all',readAllNotifications);
+router.patch('/notifications/:id/read',readNotification);
 router.get('/settings',getSettings);
 router.patch('/settings',updateSettings);
 export default router;
