@@ -1,4 +1,5 @@
 import CandidateProfile from '../models/CandidateProfile.js';
+import Promotion from '../models/Promotion.js';
 import { listUserNotifications, markAllNotificationsRead, markNotificationRead } from '../services/notificationService.js';
 
 function escapeRegExp(value=''){return String(value).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
@@ -11,9 +12,11 @@ export async function searchCandidates(req,res){
   if(workplace)filter['preferences.workplaces']=workplace;
   if(jobType)filter['preferences.jobTypes']=jobType;
   if(q){const rx={$regex:escapeRegExp(q),$options:'i'};filter.$or=[{headline:rx},{bio:rx},{skills:{$elemMatch:rx}},{'experience.title':rx},{'experience.company':rx},{'education.degree':rx},{'education.field':rx}];}
-  const profiles=await CandidateProfile.find(filter).sort({updatedAt:-1}).limit(limit).populate('user','firstName lastName email').lean();
-  const candidates=profiles.filter((profile)=>profile.user).map((profile)=>({
-    id:profile.user._id,name:`${profile.user.firstName} ${profile.user.lastName}`,email:profile.user.email,headline:profile.headline,location:profile.location,bio:profile.bio,skills:profile.skills||[],experience:profile.experience||[],education:profile.education||[],preferences:profile.preferences||{},resume:profile.privacy?.showResumeToRecruiters===false?null:profile.resume,
+  const profiles=await CandidateProfile.find(filter).sort({updatedAt:-1}).limit(100).populate('user','firstName lastName email').lean();
+  const now=new Date();const boosts=await Promotion.find({target:{$in:profiles.map((profile)=>profile._id)},targetType:'candidate-profile',product:'candidate-profile-boost',status:'active',startsAt:{$lte:now},endsAt:{$gt:now}}).select('target endsAt').lean();const boostMap=new Map(boosts.map((boost)=>[String(boost.target),boost.endsAt]));
+  profiles.sort((a,b)=>Number(boostMap.has(String(b._id)))-Number(boostMap.has(String(a._id))));
+  const candidates=profiles.slice(0,limit).filter((profile)=>profile.user).map((profile)=>({
+    id:profile.user._id,name:`${profile.user.firstName} ${profile.user.lastName}`,email:profile.user.email,headline:profile.headline,location:profile.location,bio:profile.bio,skills:profile.skills||[],experience:profile.experience||[],education:profile.education||[],preferences:profile.preferences||{},resume:profile.privacy?.showResumeToRecruiters===false?null:profile.resume,promotion:{boosted:boostMap.has(String(profile._id)),endsAt:boostMap.get(String(profile._id))||null},
   }));
   return res.json({candidates});
 }
