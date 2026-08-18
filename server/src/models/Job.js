@@ -7,4 +7,9 @@ const jobSchema=new mongoose.Schema({
   salary:{min:{type:Number,min:0},max:{type:Number,min:0},currency:{type:String,default:'INR'},period:{type:String,enum:['year','month','hour'],default:'year'}},
   status:{type:String,enum:['draft','published','reviewing','paused','closed'],default:'draft',index:true},featured:{type:Boolean,default:false},applicationDeadline:Date,expiresAt:Date,publishedAt:Date,closedAt:Date
 },{timestamps:true});
+jobSchema.index({status:1,publishedAt:-1});
+jobSchema.index({createdBy:1,status:1,createdAt:-1});
+jobSchema.index({company:1,status:1,publishedAt:-1});
+jobSchema.index({status:1,category:1,workMode:1,employmentType:1,publishedAt:-1});
+jobSchema.index({'location.city':1,status:1,publishedAt:-1});
 export default mongoose.model('Job',jobSchema);
