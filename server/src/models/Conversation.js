@@ -10,4 +10,6 @@ const conversationSchema=new mongoose.Schema({
   lastMessagePreview:{type:String,trim:true,maxlength:240,default:''}
 },{timestamps:true});
 conversationSchema.index({recruiter:1,candidate:1,job:1},{unique:true});
+conversationSchema.index({recruiter:1,lastMessageAt:-1});
+conversationSchema.index({candidate:1,lastMessageAt:-1});
 export default mongoose.model('Conversation',conversationSchema);
