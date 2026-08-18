@@ -1,6 +1,8 @@
 import CandidateProfile from '../models/CandidateProfile.js';
 import JobAlert from '../models/JobAlert.js';
 import Notification from '../models/Notification.js';
+import User from '../models/User.js';
+import { brandedEmail, sendEmail } from './emailService.js';
 
 export async function createNotification({user,type,title,message,link='',metadata={}}){
   if(!user)return null;
@@ -34,21 +36,20 @@ function matchesAlert(job,alert){
 }
 
 export async function notifyMatchingJobAlerts(job){
-  const alerts=await JobAlert.find({active:true,inAppEnabled:true}).lean();
+  const alerts=await JobAlert.find({active:true}).lean();
   const matched=alerts.filter((alert)=>matchesAlert(job,alert));
   if(!matched.length)return 0;
   const candidateIds=[...new Set(matched.map((alert)=>String(alert.candidate)))];
-  const visibleProfiles=await CandidateProfile.find({user:{$in:candidateIds},'privacy.jobAlertsEnabled':{$ne:false}}).select('user').lean();
-  const allowed=new Set(visibleProfiles.map((profile)=>String(profile.user)));
-  const docs=matched.filter((alert)=>allowed.has(String(alert.candidate))).map((alert)=>({
-    user:alert.candidate,
-    type:'job_alert',
-    title:`New role matching “${alert.name}”`,
-    message:`${job.title} matches your saved job alert.`,
-    link:`/jobs/${job.slug}`,
-    metadata:{jobId:job._id,jobSlug:job.slug,alertId:alert._id},
-  }));
+  const [profiles,users]=await Promise.all([
+    CandidateProfile.find({user:{$in:candidateIds},'privacy.jobAlertsEnabled':{$ne:false}}).select('user').lean(),
+    User.find({_id:{$in:candidateIds},status:'active'}).select('firstName email').lean(),
+  ]);
+  const allowed=new Set(profiles.map((profile)=>String(profile.user)));const userMap=new Map(users.map((user)=>[String(user._id),user]));
+  const eligible=matched.filter((alert)=>allowed.has(String(alert.candidate))&&userMap.has(String(alert.candidate)));
+  const docs=eligible.filter((alert)=>alert.inAppEnabled!==false).map((alert)=>({user:alert.candidate,type:'job_alert',title:`New role matching “${alert.name}”`,message:`${job.title} matches your saved job alert.`,link:`/jobs/${job.slug}`,metadata:{jobId:job._id,jobSlug:job.slug,alertId:alert._id}}));
   if(docs.length)await Notification.insertMany(docs,{ordered:false});
-  await JobAlert.updateMany({_id:{$in:matched.map((alert)=>alert._id)}},{$set:{lastMatchedAt:new Date()}});
-  return docs.length;
+  const jobUrl=`${process.env.CLIENT_URL}/jobs/${job.slug}`;
+  await Promise.allSettled(eligible.filter((alert)=>alert.emailEnabled!==false).map((alert)=>{const user=userMap.get(String(alert.candidate));return sendEmail({to:user.email,subject:`New job match: ${job.title}`,html:brandedEmail({eyebrow:'Job alert',title:'A new role matches your alert',greeting:`Hello ${user.firstName},`,paragraphs:[`${job.title} matches your saved job alert “${alert.name}”.`,'Open the role to review the full job description and decide whether it fits your next move.'],buttonLabel:'View matching job',buttonUrl:jobUrl,note:'You can manage or pause job alerts from your candidate workspace.'}),text:`${job.title} matches your job alert “${alert.name}”. View: ${jobUrl}`});}));
+  await JobAlert.updateMany({_id:{$in:eligible.map((alert)=>alert._id)}},{$set:{lastMatchedAt:new Date()}});
+  return eligible.length;
 }
