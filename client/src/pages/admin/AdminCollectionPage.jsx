@@ -1,4 +1,4 @@
-import { CheckCircle2, Search, Trash2 } from 'lucide-react';
+import { Search, Trash2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import ActionModal from '../../components/ActionModal.jsx';
 import { apiRequest } from '../../lib/api.js';
