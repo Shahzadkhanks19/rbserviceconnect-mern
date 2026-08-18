@@ -5,14 +5,13 @@ import { listUserNotifications, markAllNotificationsRead, markNotificationRead }
 const clean=(value='')=>String(value).trim();
 const allowedWorkModes=['','on-site','hybrid','remote'];
 const allowedTypes=['','full-time','part-time','contract','internship','temporary'];
-const allowedFrequencies=['instant','daily','weekly'];
 
 async function profileFor(userId){return CandidateProfile.findOneAndUpdate({user:userId},{$setOnInsert:{user:userId}},{new:true,upsert:true,setDefaultsOnInsert:true});}
 function alertPayload(body={}){
   return {
     name:clean(body.name).slice(0,120),keywords:clean(body.keywords).slice(0,300),location:clean(body.location).slice(0,160),category:clean(body.category).slice(0,100),
     workMode:allowedWorkModes.includes(body.workMode)?body.workMode:'',employmentType:allowedTypes.includes(body.employmentType)?body.employmentType:'',
-    frequency:allowedFrequencies.includes(body.frequency)?body.frequency:'daily',emailEnabled:body.emailEnabled!==false,inAppEnabled:body.inAppEnabled!==false,active:body.active!==false,
+    frequency:'instant',emailEnabled:body.emailEnabled!==false,inAppEnabled:body.inAppEnabled!==false,active:body.active!==false,
   };
 }
 
