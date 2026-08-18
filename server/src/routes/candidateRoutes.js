@@ -17,6 +17,17 @@ import {
   uploadResume,
   withdrawApplication,
 } from '../controllers/candidateController.js';
+import {
+  createJobAlert,
+  deleteJobAlert,
+  getNotifications,
+  getPrivacy,
+  listJobAlerts,
+  readAllNotifications,
+  readNotification,
+  updateJobAlert,
+  updatePrivacy,
+} from '../controllers/candidateEngagementController.js';
 
 const router=Router();
 router.use(requireAuth,allowRoles('candidate'));
@@ -33,6 +44,15 @@ router.get('/applications',listApplications);
 router.post('/applications',createApplication);
 router.patch('/applications/:id/withdraw',withdrawApplication);
 router.get('/recommended-jobs',getRecommendedJobs);
+router.get('/job-alerts',listJobAlerts);
+router.post('/job-alerts',createJobAlert);
+router.put('/job-alerts/:id',updateJobAlert);
+router.delete('/job-alerts/:id',deleteJobAlert);
+router.get('/notifications',getNotifications);
+router.patch('/notifications/read-all',readAllNotifications);
+router.patch('/notifications/:id/read',readNotification);
+router.get('/privacy',getPrivacy);
+router.patch('/privacy',updatePrivacy);
 router.patch('/account',updateAccount);
 router.patch('/password',changePassword);
 export default router;
