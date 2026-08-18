@@ -28,6 +28,8 @@ import {
   updateJobAlert,
   updatePrivacy,
 } from '../controllers/candidateEngagementController.js';
+import { listCandidateInterviews, respondToInterview } from '../controllers/recruiterGrowthController.js';
+import { listConversations, listMessages, sendMessage } from '../controllers/messagingController.js';
 
 const router=Router();
 router.use(requireAuth,allowRoles('candidate'));
@@ -51,6 +53,11 @@ router.delete('/job-alerts/:id',deleteJobAlert);
 router.get('/notifications',getNotifications);
 router.patch('/notifications/read-all',readAllNotifications);
 router.patch('/notifications/:id/read',readNotification);
+router.get('/interviews',listCandidateInterviews);
+router.patch('/interviews/:id/respond',respondToInterview);
+router.get('/messages',listConversations);
+router.get('/messages/:id',listMessages);
+router.post('/messages/:id',sendMessage);
 router.get('/privacy',getPrivacy);
 router.patch('/privacy',updatePrivacy);
 router.patch('/account',updateAccount);
