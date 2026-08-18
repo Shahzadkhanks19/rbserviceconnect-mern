@@ -1,4 +1,4 @@
-import { Bookmark, BriefcaseBusiness, Building2, FileText, LayoutDashboard, LogOut, Menu, Settings, UserRound, UsersRound, X } from 'lucide-react';
+import { Activity, BarChart3, Bookmark, BriefcaseBusiness, Building2, FileText, LayoutDashboard, LogOut, Mail, Menu, Settings, ShieldCheck, UserRound, Users, UsersRound, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { apiRequest } from '../lib/api.js';
@@ -6,6 +6,7 @@ import { apiRequest } from '../lib/api.js';
 const logoUrl = 'https://media.githubusercontent.com/media/Shahzadkhanks19/rbserviceconnect/main/images/Royalties-Service-Connect.png';
 const candidateNav = [['','Overview',LayoutDashboard],['profile','Profile',UserRound],['resume','Resume',FileText],['saved-jobs','Saved jobs',Bookmark],['applications','Applications',BriefcaseBusiness],['settings','Settings',Settings]];
 const recruiterNav = [['','Overview',LayoutDashboard],['company','Company profile',Building2],['jobs','Jobs',BriefcaseBusiness],['applicants','Applicants',UsersRound],['settings','Settings',Settings]];
+const adminNav = [['','Overview',LayoutDashboard],['recruiters','Recruiter approvals',ShieldCheck],['users','Users',Users],['companies','Companies',Building2],['jobs','Jobs',BriefcaseBusiness],['applications','Applications',FileText],['contacts','Contact enquiries',Mail],['analytics','Analytics',BarChart3],['activity','Activity log',Activity],['settings','Settings',Settings]];
 const defaultNav = [['','Overview',LayoutDashboard]];
 
 function DashboardNav({role,expectedRole,navItems,user,onClose,onLogout}){
@@ -18,7 +19,7 @@ export default function DashboardLayout({ role, loginPath = '/login' }) {
   const [loading, setLoading] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
   const expectedRole = role.toLowerCase();
-  const navItems = expectedRole === 'candidate' ? candidateNav : expectedRole === 'recruiter' ? recruiterNav : defaultNav;
+  const navItems = expectedRole === 'candidate' ? candidateNav : expectedRole === 'recruiter' ? recruiterNav : expectedRole === 'admin' ? adminNav : defaultNav;
 
   useEffect(() => {
     let cancelled = false;
@@ -48,7 +49,7 @@ export default function DashboardLayout({ role, loginPath = '/login' }) {
 
   return <div className="min-h-screen bg-[#F5F7F8] lg:grid lg:grid-cols-[272px_1fr]">
     <aside className="hidden min-h-screen border-r border-slate-800 bg-slate-950 p-5 text-white lg:flex lg:flex-col"><DashboardNav {...navProps}/></aside>
-    {mobileOpen&&<div className="fixed inset-0 z-[70] lg:hidden"><button className="absolute inset-0 bg-slate-950/55 backdrop-blur-sm" aria-label="Close navigation" onClick={()=>setMobileOpen(false)}/><aside className="relative flex h-full w-[86%] max-w-xs flex-col bg-slate-950 p-5 text-white shadow-2xl"><button type="button" onClick={()=>setMobileOpen(false)} className="absolute right-4 top-4 grid size-9 place-items-center rounded-lg bg-white/10" aria-label="Close navigation"><X size={18}/></button><DashboardNav {...navProps}/></aside></div>}
+    {mobileOpen&&<div className="fixed inset-0 z-[70] lg:hidden"><button className="absolute inset-0 bg-slate-950/55 backdrop-blur-sm" aria-label="Close navigation" onClick={()=>setMobileOpen(false)}/><aside className="relative flex h-full w-[86%] max-w-xs flex-col overflow-y-auto bg-slate-950 p-5 text-white shadow-2xl"><button type="button" onClick={()=>setMobileOpen(false)} className="absolute right-4 top-4 grid size-9 place-items-center rounded-lg bg-white/10" aria-label="Close navigation"><X size={18}/></button><DashboardNav {...navProps}/></aside></div>}
     <main className="min-w-0"><header className="sticky top-0 z-40 flex min-h-18 items-center justify-between border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur-xl sm:px-6"><div><p className="text-xs font-medium text-slate-500">RB Service Connect</p><h1 className="text-lg font-semibold">{role} Workspace</h1></div><div className="flex items-center gap-3"><span className="hidden text-right sm:block"><strong className="block text-sm text-slate-800">{user.firstName} {user.lastName}</strong><span className="text-xs capitalize text-slate-500">{user.role}</span></span><button type="button" onClick={()=>setMobileOpen(true)} className="grid size-10 place-items-center rounded-xl border border-slate-200 lg:hidden" aria-label="Open dashboard navigation"><Menu size={19}/></button></div></header><div className="p-4 sm:p-6 lg:p-8"><Outlet context={{user,setUser}}/></div></main>
   </div>;
 }
