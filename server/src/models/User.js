@@ -8,7 +8,9 @@ const userSchema = new mongoose.Schema({
   password:{type:String,required:true,minlength:8,select:false},
   role:{type:String,enum:['candidate','recruiter','admin'],default:'candidate',index:true},
   status:{type:String,enum:['active','suspended','pending'],default:'active'},
-  emailVerified:{type:Boolean,default:false},
+  emailVerified:{type:Boolean,default:false,index:true},
+  emailVerificationTokenHash:{type:String,default:null,select:false},
+  emailVerificationExpiresAt:{type:Date,default:null,select:false},
   lastLoginAt:{type:Date,default:null},
   passwordResetTokenHash:{type:String,default:null,select:false},
   passwordResetExpiresAt:{type:Date,default:null,select:false}
