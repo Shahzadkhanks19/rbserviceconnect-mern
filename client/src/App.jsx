@@ -31,7 +31,11 @@ const RecruiterCompanyPage = lazy(() => import('./pages/recruiter/RecruiterCompa
 const RecruiterJobsPage = lazy(() => import('./pages/recruiter/RecruiterJobsPage.jsx'));
 const RecruiterApplicantsPage = lazy(() => import('./pages/recruiter/RecruiterApplicantsPage.jsx'));
 const RecruiterSettingsPage = lazy(() => import('./pages/recruiter/RecruiterSettingsPage.jsx'));
-const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard.jsx'));
+const AdminOverviewPage = lazy(() => import('./pages/admin/AdminOverviewPage.jsx'));
+const AdminRecruiterApprovalsPage = lazy(() => import('./pages/admin/AdminDashboard.jsx'));
+const AdminCollectionPage = lazy(() => import('./pages/admin/AdminCollectionPage.jsx'));
+const AdminAnalyticsPage = lazy(() => import('./pages/admin/AdminAnalyticsPage.jsx'));
+const AdminSettingsPage = lazy(() => import('./pages/admin/AdminSettingsPage.jsx'));
 const AdminLoginPage = lazy(() => import('./pages/admin/AdminLoginPage.jsx'));
 const NotFoundPage = lazy(() => import('./pages/public/NotFoundPage.jsx'));
 
@@ -43,6 +47,6 @@ export default function App(){return <><ScrollToTop/><Suspense fallback={<RouteF
   <Route path="admin/login" element={<AdminLoginPage/>}/>
   <Route path="candidate" element={<DashboardLayout role="Candidate"/>}><Route index element={<CandidateOverviewPage/>}/><Route path="profile" element={<CandidateProfilePage/>}/><Route path="resume" element={<CandidateResumePage/>}/><Route path="saved-jobs" element={<CandidateSavedJobsPage/>}/><Route path="applications" element={<CandidateApplicationsPage/>}/><Route path="settings" element={<CandidateSettingsPage/>}/></Route>
   <Route path="recruiter" element={<DashboardLayout role="Recruiter"/>}><Route index element={<RecruiterOverviewPage/>}/><Route path="company" element={<RecruiterCompanyPage/>}/><Route path="jobs" element={<RecruiterJobsPage/>}/><Route path="applicants" element={<RecruiterApplicantsPage/>}/><Route path="settings" element={<RecruiterSettingsPage/>}/></Route>
-  <Route path="admin" element={<DashboardLayout role="Admin" loginPath="/admin/login"/>}><Route index element={<AdminDashboard/>}/></Route>
+  <Route path="admin" element={<DashboardLayout role="Admin" loginPath="/admin/login"/>}><Route index element={<AdminOverviewPage/>}/><Route path="recruiters" element={<AdminRecruiterApprovalsPage/>}/><Route path="users" element={<AdminCollectionPage resource="users"/>}/><Route path="companies" element={<AdminCollectionPage resource="companies"/>}/><Route path="jobs" element={<AdminCollectionPage resource="jobs"/>}/><Route path="applications" element={<AdminCollectionPage resource="applications"/>}/><Route path="contacts" element={<AdminCollectionPage resource="contacts"/>}/><Route path="analytics" element={<AdminAnalyticsPage/>}/><Route path="activity" element={<AdminCollectionPage resource="activity"/>}/><Route path="settings" element={<AdminSettingsPage/>}/></Route>
   <Route path="*" element={<NotFoundPage/>}/>
 </Routes></Suspense></>}
