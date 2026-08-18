@@ -2,12 +2,14 @@ import 'dotenv/config';
 import { createServer } from 'node:http';
 import app from './app.js';
 import { connectDatabase } from './config/db.js';
+import { validateEnvironment } from './config/env.js';
 import { createSocketServer } from './realtime/socket.js';
 import { ensureAdminAccount } from './utils/ensureAdmin.js';
 
 const port=Number(process.env.PORT||5000);
 
 try{
+  validateEnvironment();
   await connectDatabase();
   await ensureAdminAccount();
   const httpServer=createServer(app);
