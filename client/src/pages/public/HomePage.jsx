@@ -24,7 +24,7 @@ import {
   UsersRound,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { apiRequest } from '../../lib/api.js';
 
 const categories = [
@@ -74,7 +74,10 @@ function postedLabel(value) {
 }
 
 export default function HomePage() {
+  const navigate = useNavigate();
   const [featuredJobs, setFeaturedJobs] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchLocation, setSearchLocation] = useState('');
 
   useEffect(() => {
     let cancelled = false;
@@ -90,6 +93,15 @@ export default function HomePage() {
       });
     return () => { cancelled = true; };
   }, []);
+
+  const submitSearch = (event) => {
+    event.preventDefault();
+    const params = new URLSearchParams();
+    if (searchQuery.trim()) params.set('q', searchQuery.trim());
+    if (searchLocation.trim()) params.set('location', searchLocation.trim());
+    const suffix = params.toString();
+    navigate(`/jobs${suffix ? `?${suffix}` : ''}`);
+  };
 
   return (
     <>
@@ -129,22 +141,22 @@ export default function HomePage() {
                   <div><p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-600">Job discovery</p><h2 className="mt-2 text-2xl font-semibold tracking-[-0.035em] sm:text-3xl">Find work that fits you.</h2></div>
                   <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-indigo-50 text-indigo-600"><Search size={20} /></span>
                 </div>
-                <div className="mt-6 grid gap-3">
+                <form onSubmit={submitSearch} className="mt-6 grid gap-3" role="search">
                   <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/70 px-4 py-3.5 text-sm focus-within:border-indigo-300 focus-within:bg-white">
                     <Search size={18} className="shrink-0 text-slate-400" />
-                    <input type="search" aria-label="Search by job title or skill" placeholder="Job title, skill, or keyword" className="w-full bg-transparent text-slate-900 outline-none placeholder:text-slate-400" />
+                    <input type="search" value={searchQuery} onChange={(event)=>setSearchQuery(event.target.value)} aria-label="Search by job title or skill" placeholder="Job title, skill, or keyword" className="w-full bg-transparent text-slate-900 outline-none placeholder:text-slate-400" />
                   </label>
                   <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/70 px-4 py-3.5 text-sm focus-within:border-indigo-300 focus-within:bg-white">
                     <MapPin size={18} className="shrink-0 text-slate-400" />
-                    <input type="search" aria-label="Search by location" placeholder="City, state, or remote" className="w-full bg-transparent text-slate-900 outline-none placeholder:text-slate-400" />
+                    <input type="search" value={searchLocation} onChange={(event)=>setSearchLocation(event.target.value)} aria-label="Search by location" placeholder="City, state, or remote" className="w-full bg-transparent text-slate-900 outline-none placeholder:text-slate-400" />
                   </label>
-                  <Link to="/jobs" className="rounded-xl bg-slate-950 px-4 py-3.5 text-center text-sm font-semibold text-white transition hover:bg-slate-800">Search opportunities</Link>
-                </div>
+                  <button type="submit" className="rounded-xl bg-slate-950 px-4 py-3.5 text-center text-sm font-semibold text-white transition hover:bg-slate-800">Search opportunities</button>
+                </form>
                 <div className="mt-6 border-t border-slate-200 pt-5">
                   <p className="text-xs font-semibold text-slate-500">Popular searches</p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {['React', 'UI/UX', 'Marketing', 'Remote', 'Finance'].map((item) => (
-                      <Link key={item} to="/jobs" className="rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-indigo-50 hover:text-indigo-700">{item}</Link>
+                      <Link key={item} to={`/jobs?q=${encodeURIComponent(item)}`} className="rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-indigo-50 hover:text-indigo-700">{item}</Link>
                     ))}
                   </div>
                 </div>
@@ -173,7 +185,7 @@ export default function HomePage() {
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {categories.map(({ icon: Icon, title, copy }, index) => (
               <motion.div key={title} initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.45, delay: index * 0.05 }}>
-                <Link to="/jobs" className="group flex h-full items-center gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:border-indigo-200 hover:shadow-xl hover:shadow-slate-950/5">
+                <Link to={`/jobs?category=${encodeURIComponent(title)}`} className="group flex h-full items-center gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:border-indigo-200 hover:shadow-xl hover:shadow-slate-950/5">
                   <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-indigo-50 text-indigo-600 transition group-hover:bg-indigo-600 group-hover:text-white"><Icon size={21} /></span>
                   <span className="min-w-0 flex-1"><strong className="block text-base font-semibold text-slate-950">{title}</strong><span className="mt-1 block text-xs leading-5 text-slate-500">{copy}</span></span>
                   <ChevronRight size={18} className="text-slate-300 transition group-hover:translate-x-1 group-hover:text-indigo-500" />
