@@ -1,94 +1,30 @@
-import { Menu, X } from 'lucide-react';
-import { useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Bell,BriefcaseBusiness,Building2,CalendarClock,ChevronDown,FileText,FolderHeart,LogOut,Menu,MessageSquare,Search,Settings,UserRound,UsersRound,X } from 'lucide-react';
+import { useEffect,useRef,useState } from 'react';
+import { Link,NavLink,useNavigate } from 'react-router-dom';
+import { apiRequest } from '../lib/api.js';
+import { getSocket } from '../lib/socket.js';
 
-const navItems = [
-  ['/', 'Home'],
-  ['/jobs', 'Find Jobs'],
-  ['/companies', 'Companies'],
-  ['/employers', 'For Employers'],
-  ['/about', 'About'],
-  ['/contact', 'Contact'],
-];
+const publicNav=[['/','Home'],['/jobs','Find Jobs'],['/companies','Companies'],['/employers','For Employers'],['/about','About'],['/contact','Contact']];
+const candidateNav=[['/jobs','Find Jobs'],['/companies','Companies'],['/candidate/applications','Applications'],['/candidate/saved-jobs','Saved Jobs']];
+const recruiterNav=[['/recruiter/jobs','My Jobs'],['/recruiter/applicants','Applicants'],['/recruiter/candidate-search','Find Candidates'],['/recruiter/interviews','Interviews']];
+const candidateMenu=[['/candidate/profile','My profile',UserRound],['/candidate/resume','Resume',FileText],['/candidate/applications','Applications',BriefcaseBusiness],['/candidate/saved-jobs','Saved jobs',BriefcaseBusiness],['/candidate/job-alerts','Job alerts',Bell],['/candidate/interviews','Interviews',CalendarClock],['/candidate/settings','Settings',Settings]];
+const recruiterMenu=[['/recruiter/company','Company profile',Building2],['/recruiter/jobs','Manage jobs',BriefcaseBusiness],['/recruiter/applicants','Applicants',UsersRound],['/recruiter/candidate-search','Candidate search',Search],['/recruiter/talent-pools','Talent pools',FolderHeart],['/recruiter/interviews','Interviews',CalendarClock],['/recruiter/settings','Settings',Settings]];
+const logoUrl='https://media.githubusercontent.com/media/Shahzadkhanks19/rbserviceconnect/main/images/Royalties-Service-Connect.png';
 
-const logoUrl = 'https://media.githubusercontent.com/media/Shahzadkhanks19/rbserviceconnect/main/images/Royalties-Service-Connect.png';
+export default function Header({sessionUser=null}){
+  const navigate=useNavigate();const menuRef=useRef(null);const [isOpen,setIsOpen]=useState(false);const [profileOpen,setProfileOpen]=useState(false);const [user,setUser]=useState(sessionUser);const [badges,setBadges]=useState({messages:0,notifications:0});
+  const closeMenu=()=>setIsOpen(false);
+  useEffect(()=>{if(sessionUser){setUser(sessionUser);return;}let cancelled=false;apiRequest('/auth/me').then((response)=>{if(!cancelled&&['candidate','recruiter'].includes(response?.user?.role))setUser(response.user);}).catch(()=>{});return()=>{cancelled=true;};},[sessionUser]);
+  useEffect(()=>{if(!user||!['candidate','recruiter'].includes(user.role))return undefined;let cancelled=false;const refresh=async()=>{try{const [messages,notifications]=await Promise.all([apiRequest(`/${user.role}/messages`),apiRequest(`/${user.role}/notifications`)]);if(!cancelled)setBadges({messages:(messages.conversations||[]).reduce((sum,item)=>sum+(item.unreadCount||0),0),notifications:notifications.unreadCount||0});}catch{/* Header remains usable if badges cannot load. */}};refresh();const socket=getSocket();socket.connect();socket.on('conversation:updated',refresh);socket.on('message:new',refresh);return()=>{cancelled=true;socket.off('conversation:updated',refresh);socket.off('message:new',refresh);};},[user]);
+  useEffect(()=>{const close=(event)=>{if(menuRef.current&&!menuRef.current.contains(event.target))setProfileOpen(false);};document.addEventListener('pointerdown',close);return()=>document.removeEventListener('pointerdown',close);},[]);
+  const role=user?.role;const navItems=role==='candidate'?candidateNav:role==='recruiter'?recruiterNav:publicNav;const accountMenu=role==='candidate'?candidateMenu:recruiterMenu;const home=role==='candidate'?'/candidate':role==='recruiter'?'/recruiter':'/';
+  const logout=async()=>{try{await apiRequest('/auth/logout',{method:'POST'});}finally{getSocket().disconnect();setUser(null);setProfileOpen(false);navigate('/login',{replace:true});}};
+  const badge=(count)=><span className="absolute -right-1 -top-1 grid min-h-5 min-w-5 place-items-center rounded-full bg-indigo-500 px-1 text-[10px] font-bold text-white">{count>99?'99+':count}</span>;
 
-export default function Header() {
-  const [isOpen, setIsOpen] = useState(false);
-  const closeMenu = () => setIsOpen(false);
-
-  return (
-    <header className="sticky top-0 z-50 border-b border-black/5 bg-white/95 backdrop-blur-xl">
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link
-          to="/"
-          className="flex shrink-0 items-center rounded-xl bg-emerald-500 px-2.5 py-1.5"
-          aria-label="Royalties Service Connect home"
-          onClick={closeMenu}
-        >
-          <img src={logoUrl} alt="Royalties Service Connect" className="h-12 w-auto object-contain" />
-        </Link>
-
-        <nav className="hidden items-center gap-6 xl:flex" aria-label="Primary navigation">
-          {navItems.map(([to, label]) => (
-            <NavLink
-              key={to}
-              to={to}
-              className={({ isActive }) =>
-                `text-sm font-semibold transition-colors ${isActive ? 'text-indigo-600' : 'text-slate-600 hover:text-slate-950'}`
-              }
-            >
-              {label}
-            </NavLink>
-          ))}
-        </nav>
-
-        <div className="hidden items-center gap-3 xl:flex">
-          <Link to="/login" className="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-[#f3e8a2]/35 hover:text-slate-950">
-            Sign in
-          </Link>
-          <Link to="/register" className="rounded-xl bg-indigo-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-700/15 transition hover:bg-indigo-600">
-            Create account
-          </Link>
-        </div>
-
-        <button
-          type="button"
-          className="grid size-11 place-items-center rounded-xl border border-slate-200 bg-white text-slate-700 xl:hidden"
-          aria-label={isOpen ? 'Close navigation' : 'Open navigation'}
-          aria-expanded={isOpen}
-          onClick={() => setIsOpen((current) => !current)}
-        >
-          {isOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
-      </div>
-
-      {isOpen && (
-        <div className="border-t border-slate-200 bg-white px-4 pb-5 pt-3 shadow-xl shadow-slate-950/5 xl:hidden">
-          <nav className="mx-auto flex max-w-7xl flex-col gap-1" aria-label="Mobile navigation">
-            {navItems.map(([to, label]) => (
-              <NavLink
-                key={to}
-                to={to}
-                onClick={closeMenu}
-                className={({ isActive }) =>
-                  `rounded-xl px-4 py-3 text-sm font-semibold ${isActive ? 'bg-indigo-50 text-indigo-800' : 'text-slate-700 hover:bg-slate-50'}`
-                }
-              >
-                {label}
-              </NavLink>
-            ))}
-            <div className="mt-3 grid gap-2 border-t border-slate-200 pt-4 sm:grid-cols-2">
-              <Link to="/login" onClick={closeMenu} className="rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-700">
-                Sign in
-              </Link>
-              <Link to="/register" onClick={closeMenu} className="rounded-xl bg-indigo-500 px-4 py-3 text-center text-sm font-semibold text-white">
-                Create account
-              </Link>
-            </div>
-          </nav>
-        </div>
-      )}
-    </header>
-  );
+  return <header className="sticky top-0 z-50 border-b border-black/5 bg-white/95 backdrop-blur-xl"><div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8"><Link to={home} className="flex shrink-0 items-center rounded-xl bg-emerald-500 px-2.5 py-1.5" aria-label="Royalties Service Connect home" onClick={closeMenu}><img src={logoUrl} alt="Royalties Service Connect" className="h-12 w-auto object-contain"/></Link>
+    <nav className="hidden items-center gap-5 xl:flex" aria-label="Primary navigation">{navItems.map(([to,label])=><NavLink key={to} to={to} end={to===home} className={({isActive})=>`text-sm font-semibold transition-colors ${isActive?'text-indigo-600':'text-slate-600 hover:text-slate-950'}`}>{label}</NavLink>)}</nav>
+    <div className="hidden items-center gap-2 xl:flex">{user?<><Link to={`/${role}/messages`} className="relative grid size-11 place-items-center rounded-xl text-slate-600 transition hover:bg-slate-100 hover:text-slate-950" aria-label={`Messages${badges.messages?`, ${badges.messages} unread`:''}`}><MessageSquare size={20}/>{badges.messages>0&&badge(badges.messages)}</Link><Link to={`/${role}/notifications`} className="relative grid size-11 place-items-center rounded-xl text-slate-600 transition hover:bg-slate-100 hover:text-slate-950" aria-label={`Notifications${badges.notifications?`, ${badges.notifications} unread`:''}`}><Bell size={20}/>{badges.notifications>0&&badge(badges.notifications)}</Link><div className="relative" ref={menuRef}><button type="button" onClick={()=>setProfileOpen((value)=>!value)} className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white py-1.5 pl-1.5 pr-3 text-left transition hover:border-slate-300 hover:bg-slate-50" aria-expanded={profileOpen} aria-haspopup="menu"><span className="grid size-9 place-items-center rounded-lg bg-indigo-50 text-sm font-bold text-indigo-700">{user.firstName?.[0]}{user.lastName?.[0]}</span><span className="max-w-32"><strong className="block truncate text-sm text-slate-900">{user.firstName} {user.lastName}</strong><span className="block text-[11px] capitalize text-slate-500">{role}</span></span><ChevronDown size={15} className={`text-slate-400 transition ${profileOpen?'rotate-180':''}`}/></button>{profileOpen&&<div role="menu" className="absolute right-0 mt-2 w-64 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl shadow-slate-950/10"><Link to={`/${role}`} onClick={()=>setProfileOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"><UserRound size={17}/>Account home</Link>{accountMenu.map(([to,label,Icon])=><Link key={to} to={to} onClick={()=>setProfileOpen(false)} role="menuitem" className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-950"><Icon size={17}/>{label}</Link>)}<div className="my-2 border-t border-slate-100"/><button type="button" onClick={logout} role="menuitem" className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-rose-600 hover:bg-rose-50"><LogOut size={17}/>Sign out</button></div>}</div></>:<><Link to="/login" className="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-[#f3e8a2]/35 hover:text-slate-950">Sign in</Link><Link to="/register" className="rounded-xl bg-indigo-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-700/15 transition hover:bg-indigo-600">Create account</Link></>}</div>
+    <button type="button" className="grid size-11 place-items-center rounded-xl border border-slate-200 bg-white text-slate-700 xl:hidden" aria-label={isOpen?'Close navigation':'Open navigation'} aria-expanded={isOpen} onClick={()=>setIsOpen((current)=>!current)}>{isOpen?<X size={20}/>:<Menu size={20}/>}</button></div>
+    {isOpen&&<div className="border-t border-slate-200 bg-white px-4 pb-5 pt-3 shadow-xl shadow-slate-950/5 xl:hidden"><nav className="mx-auto flex max-w-7xl flex-col gap-1" aria-label="Mobile navigation">{navItems.map(([to,label])=><NavLink key={to} to={to} onClick={closeMenu} className={({isActive})=>`rounded-xl px-4 py-3 text-sm font-semibold ${isActive?'bg-indigo-50 text-indigo-800':'text-slate-700 hover:bg-slate-50'}`}>{label}</NavLink>)}{user?<><div className="my-2 border-t border-slate-200"/><Link to={`/${role}/messages`} onClick={closeMenu} className="flex items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold text-slate-700"><span className="flex items-center gap-3"><MessageSquare size={18}/>Messages</span>{badges.messages>0&&<span className="rounded-full bg-indigo-500 px-2 py-0.5 text-xs text-white">{badges.messages}</span>}</Link><Link to={`/${role}/notifications`} onClick={closeMenu} className="flex items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold text-slate-700"><span className="flex items-center gap-3"><Bell size={18}/>Notifications</span>{badges.notifications>0&&<span className="rounded-full bg-indigo-500 px-2 py-0.5 text-xs text-white">{badges.notifications}</span>}</Link>{accountMenu.map(([to,label,Icon])=><Link key={to} to={to} onClick={closeMenu} className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-slate-600"><Icon size={18}/>{label}</Link>)}<button type="button" onClick={()=>{closeMenu();logout();}} className="mt-2 flex items-center gap-3 rounded-xl border-t border-slate-100 px-4 py-3 text-left text-sm font-semibold text-rose-600"><LogOut size={18}/>Sign out</button></>:<div className="mt-3 grid gap-2 border-t border-slate-200 pt-4 sm:grid-cols-2"><Link to="/login" onClick={closeMenu} className="rounded-xl border border-slate-200 px-4 py-3 text-center text-sm font-semibold text-slate-700">Sign in</Link><Link to="/register" onClick={closeMenu} className="rounded-xl bg-indigo-500 px-4 py-3 text-center text-sm font-semibold text-white">Create account</Link></div>}</nav></div>}
+  </header>;
 }
