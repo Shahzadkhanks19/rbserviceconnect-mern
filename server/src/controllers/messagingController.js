@@ -23,14 +23,23 @@ export async function listConversations(req,res){
 
 export async function startConversation(req,res){
   if(req.user.role!=='recruiter')return res.status(403).json({message:'Only recruiters can start a new conversation.'});
-  const candidateId=String(req.body.candidateId||'');const jobId=String(req.body.jobId||'')||null;if(!mongoose.isValidObjectId(candidateId)||jobId&&!mongoose.isValidObjectId(jobId))return res.status(400).json({message:'Invalid candidate or job reference.'});
+  const candidateId=String(req.body.candidateId||'');const jobId=String(req.body.jobId||'')||null;if(!mongoose.isValidObjectId(candidateId)||(jobId&&!mongoose.isValidObjectId(jobId)))return res.status(400).json({message:'Invalid candidate or job reference.'});
   const profile=await CandidateProfile.findOne({user:candidateId,'privacy.discoverableToRecruiters':{$ne:false},'privacy.recruiterMessagesEnabled':{$ne:false}});if(!profile)return res.status(403).json({message:'This candidate is not available for recruiter messages.'});
   if(jobId){const job=await Job.findOne({_id:jobId,createdBy:req.user._id});if(!job)return res.status(403).json({message:'You can only start job-linked conversations for your own roles.'});}
   let conversation=await Conversation.findOne({recruiter:req.user._id,candidate:candidateId,job:jobId});if(!conversation)conversation=await Conversation.create({recruiter:req.user._id,candidate:candidateId,job:jobId});else if(conversation.archivedBy.some((id)=>String(id)===String(req.user._id))){conversation.archivedBy=conversation.archivedBy.filter((id)=>String(id)!==String(req.user._id));await conversation.save();}
   return res.status(201).json({message:'Conversation ready.',conversation});
 }
 
-export async function listMessages(req,res){const conversation=await getAccessibleConversation(req.user,req.params.id);if(!conversation)return res.status(404).json({message:'Conversation not found.'});const limit=pageSize(req.query.limit,100,200);const before=req.query.before&&mongoose.isValidObjectId(req.query.before)?await Message.findOne({_id:req.query.before,conversation:conversation._id}).select('createdAt').lean():null;const query={conversation:conversation._id,...(before?{createdAt:{$lt:before.createdAt}}:{})};const readAt=new Date();const result=await Message.updateMany({conversation:conversation._id,sender:{$ne:req.user._id},readAt:null},{$set:{readAt}});const messages=(await Message.find(query).sort({createdAt:-1}).limit(limit+1).populate('sender','firstName lastName role').lean()).reverse();const hasMore=messages.length>limit;if(hasMore)messages.shift();if(result.modifiedCount)req.app.get('io')?.to(`conversation:${conversation._id}`).emit('messages:read',{conversationId:String(conversation._id),readerId:String(req.user._id),readAt});return res.json({conversation,messages,hasMore,nextBefore:hasMore?messages[0]?._id:null:null});}
+export async function listMessages(req,res){
+  const conversation=await getAccessibleConversation(req.user,req.params.id);if(!conversation)return res.status(404).json({message:'Conversation not found.'});
+  const limit=pageSize(req.query.limit,100,200);let before=null;
+  if(req.query.before&&mongoose.isValidObjectId(req.query.before))before=await Message.findOne({_id:req.query.before,conversation:conversation._id}).select('createdAt').lean();
+  const query={conversation:conversation._id,...(before?{createdAt:{$lt:before.createdAt}}:{})};const readAt=new Date();
+  const result=await Message.updateMany({conversation:conversation._id,sender:{$ne:req.user._id},readAt:null},{$set:{readAt}});
+  const fetched=await Message.find(query).sort({createdAt:-1}).limit(limit+1).populate('sender','firstName lastName role').lean();const hasMore=fetched.length>limit;if(hasMore)fetched.pop();const messages=fetched.reverse();
+  if(result.modifiedCount)req.app.get('io')?.to(`conversation:${conversation._id}`).emit('messages:read',{conversationId:String(conversation._id),readerId:String(req.user._id),readAt});
+  return res.json({conversation,messages,hasMore,nextBefore:hasMore&&messages.length?messages[0]._id:null});
+}
 
 export async function sendMessage(req,res){
   const body=String(req.body.body||'').trim();if(body.length>4000)return res.status(400).json({message:'Message must be 4,000 characters or fewer.'});if(!body&&!req.body.attachment)return res.status(400).json({message:'Write a message or attach a file.'});
