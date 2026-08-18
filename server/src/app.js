@@ -11,16 +11,26 @@ import publicRoutes from './routes/publicRoutes.js';
 import recruiterRoutes from './routes/recruiterRoutes.js';
 
 const app=express();
+const clientUrl=process.env.CLIENT_URL;
+const production=process.env.NODE_ENV==='production';
+const limiter=(limit,message)=>rateLimit({windowMs:15*60*1000,limit,standardHeaders:'draft-8',legacyHeaders:false,message:{message},skipSuccessfulRequests:false});
+
 app.disable('x-powered-by');
-app.use(helmet());
-app.use(cors({origin:process.env.CLIENT_URL,credentials:true}));
-// Message/resume uploads are base64 encoded and independently type/size validated by their controllers.
+if(production)app.set('trust proxy',1);
+app.use(helmet({crossOriginResourcePolicy:{policy:'cross-origin'}}));
+app.use(cors({origin:clientUrl,credentials:true,methods:['GET','POST','PUT','PATCH','DELETE','OPTIONS']}));
+// Resume/message uploads are base64 encoded and independently type/size validated by their controllers.
 app.use(express.json({limit:'7mb'}));
 app.use(express.urlencoded({extended:false,limit:'1mb'}));
 app.use(cookieParser());
-app.use('/api',rateLimit({windowMs:15*60*1000,limit:300,standardHeaders:'draft-8',legacyHeaders:false}));
+app.use('/api',limiter(300,'Too many requests. Please try again shortly.'));
+app.use('/api/auth/login',limiter(12,'Too many sign-in attempts. Please wait before trying again.'));
+app.use('/api/auth/register',limiter(8,'Too many registration attempts. Please wait before trying again.'));
+app.use('/api/auth/forgot-password',limiter(5,'Too many password reset requests. Please wait before trying again.'));
+app.use('/api/auth/reset-password',limiter(8,'Too many password reset attempts. Please wait before trying again.'));
+app.use('/api/contact',limiter(8,'Too many contact submissions. Please wait before trying again.'));
 app.get('/api/health',(_req,res)=>res.json({status:'ok',service:'rbserviceconnect-api'}));
 app.use('/api/auth',authRoutes);app.use('/api/contact',contactRoutes);app.use('/api/public',publicRoutes);app.use('/api/candidate',candidateRoutes);app.use('/api/recruiter',recruiterRoutes);app.use('/api/admin',adminRoutes);
 app.use((req,res)=>res.status(404).json({message:`Route not found: ${req.method} ${req.originalUrl}`}));
-app.use((err,_req,res,_next)=>{console.error(err);res.status(err.status||500).json({message:process.env.NODE_ENV==='production'?'Something went wrong':err.message});});
+app.use((err,_req,res,_next)=>{console.error(production?err.message:err);res.status(err.status||500).json({message:production?'Something went wrong. Please try again.':err.message});});
 export default app;
