@@ -3,6 +3,7 @@ import cookieParser from 'cookie-parser';
 import express from 'express';
 import helmet from 'helmet';
 import { rateLimit } from 'express-rate-limit';
+import { handleRazorpayWebhook } from './controllers/razorpayWebhookController.js';
 import adminRoutes from './routes/adminRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import candidateRoutes from './routes/candidateRoutes.js';
@@ -17,12 +18,10 @@ const limiter=(limit,message)=>rateLimit({windowMs:15*60*1000,limit,standardHead
 
 app.disable('x-powered-by');
 if(production)app.set('trust proxy',1);
-app.use(helmet({
-  crossOriginResourcePolicy:{policy:'cross-origin'},
-  referrerPolicy:{policy:'strict-origin-when-cross-origin'},
-  hsts:production?{maxAge:31536000,includeSubDomains:true,preload:false}:false,
-}));
-app.use(cors({origin:clientUrl,credentials:true,methods:['GET','POST','PUT','PATCH','DELETE','OPTIONS'],allowedHeaders:['Content-Type','Accept']}));
+app.use(helmet({crossOriginResourcePolicy:{policy:'cross-origin'},referrerPolicy:{policy:'strict-origin-when-cross-origin'},hsts:production?{maxAge:31536000,includeSubDomains:true,preload:false}:false}));
+app.use(cors({origin:clientUrl,credentials:true,methods:['GET','POST','PUT','PATCH','DELETE','OPTIONS'],allowedHeaders:['Content-Type','Accept','X-Razorpay-Signature','X-Razorpay-Event-Id']}));
+// Razorpay signs the exact raw request bytes. This route must stay before express.json().
+app.post('/api/webhooks/razorpay',express.raw({type:'application/json',limit:'1mb'}),handleRazorpayWebhook);
 // Resume/message uploads are base64 encoded and independently type/size validated by their controllers.
 app.use(express.json({limit:'7mb'}));
 app.use(express.urlencoded({extended:false,limit:'1mb'}));
