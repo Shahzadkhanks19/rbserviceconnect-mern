@@ -14,5 +14,5 @@ export default function MemberLayout({role}){
   if(loading)return <div className="grid min-h-screen place-items-center bg-slate-50" role="status" aria-live="polite"><div className="text-center"><span className="mx-auto block size-9 animate-spin rounded-full border-4 border-slate-200 border-t-indigo-500" aria-hidden="true"/><p className="mt-4 text-sm font-medium text-slate-500">Checking your session…</p></div></div>;
   if(!user)return null;
 
-  return <div className="min-h-screen bg-[#F5F7F8] text-slate-950"><Header sessionUser={user}/><main id="main-content" tabIndex="-1" className="mx-auto min-h-[calc(100vh-5rem)] max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8"><Outlet context={{user,setUser}}/></main></div>;
+  return <div className="min-h-screen bg-[#F5F7F8] text-slate-950"><a href="#main-content" className="fixed left-4 top-4 z-[100] -translate-y-24 rounded-lg bg-slate-950 px-4 py-2 text-sm font-semibold text-white shadow-lg transition-transform focus:translate-y-0">Skip to workspace content</a><Header sessionUser={user}/><main id="main-content" tabIndex="-1" className="mx-auto min-h-[calc(100vh-5rem)] max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8"><Outlet context={{user,setUser}}/></main></div>;
 }
