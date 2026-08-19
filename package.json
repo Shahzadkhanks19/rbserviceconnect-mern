@@ -7,7 +7,10 @@
     "build": "npm run build --prefix client",
     "lint": "npm run lint --prefix client && npm run lint --prefix server",
     "audit:ui": "node scripts/audit-ui.mjs",
-    "check": "npm run audit:ui && npm run lint && npm run build",
+    "audit:api": "node scripts/audit-api.mjs",
+    "smoke:api": "node scripts/smoke-api.mjs",
+    "check": "npm run audit:ui && npm run audit:api && npm run lint && npm run build",
+    "check:live": "npm run check && npm run smoke:api",
     "install:all": "npm install && npm install --prefix client && npm install --prefix server"
   },
   "devDependencies": {
