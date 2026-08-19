@@ -3,6 +3,7 @@ import { Server } from 'socket.io';
 import Conversation from '../models/Conversation.js';
 import User from '../models/User.js';
 import UserBlock from '../models/UserBlock.js';
+import { setNotificationRealtime } from '../services/notificationService.js';
 
 function readCookie(header='',name){const prefix=`${name}=`;return header.split(';').map((part)=>part.trim()).find((part)=>part.startsWith(prefix))?.slice(prefix.length)||'';}
 function validId(value){return typeof value==='string'&&/^[a-f\d]{24}$/i.test(value);}
@@ -12,6 +13,7 @@ async function accessibleConversation(socket,conversationId,{requireMessaging=fa
 
 export function createSocketServer(httpServer,app){
   const io=new Server(httpServer,{cors:{origin:process.env.CLIENT_URL,credentials:true,methods:['GET','POST']},maxHttpBufferSize:1e6,pingTimeout:20000,pingInterval:25000});
+  setNotificationRealtime((userId,payload)=>io.to(`user:${userId}`).emit('notification:updated',payload));
   io.use(async(socket,next)=>{try{const token=readCookie(socket.handshake.headers.cookie,'rbsc_token');if(!token)return next(new Error('Authentication required'));const payload=jwt.verify(token,process.env.JWT_SECRET,{algorithms:['HS256']});if(!payload.sub)return next(new Error('Invalid session'));const user=await User.findById(payload.sub).select('firstName lastName role status');if(!user||user.status!=='active'||!['candidate','recruiter'].includes(user.role))return next(new Error('Account unavailable'));socket.user=user;return next();}catch{return next(new Error('Invalid or expired session'));}});
   io.on('connection',(socket)=>{
     socket.join(`user:${socket.user._id}`);
