@@ -4,9 +4,16 @@ import Notification from '../models/Notification.js';
 import User from '../models/User.js';
 import { brandedEmail, sendEmail } from './emailService.js';
 
+let realtimeNotify=null;
+export function setNotificationRealtime(handler){realtimeNotify=typeof handler==='function'?handler:null;}
+function emitNotificationUpdate(userId,payload={}){if(!realtimeNotify||!userId)return;try{realtimeNotify(String(userId),payload);}catch(error){console.error('Notification realtime emit failed:',error.message);}}
+const clean=(value,max)=>String(value||'').trim().slice(0,max);
+
 export async function createNotification({user,type,title,message,link='',metadata={}}){
   if(!user)return null;
-  return Notification.create({user,type,title,message,link,metadata});
+  const notification=await Notification.create({user,type:clean(type,80),title:clean(title,180),message:clean(message,1200),link:clean(link,500),metadata:metadata&&typeof metadata==='object'?metadata:{}});
+  emitNotificationUpdate(user,{action:'created',notificationId:String(notification._id)});
+  return notification;
 }
 
 export async function listUserNotifications(userId,{limit=50}={}){
@@ -19,12 +26,15 @@ export async function listUserNotifications(userId,{limit=50}={}){
 }
 
 export async function markNotificationRead(userId,id){
-  return Notification.findOneAndUpdate({_id:id,user:userId},{$set:{readAt:new Date()}},{new:true});
+  const notification=await Notification.findOneAndUpdate({_id:id,user:userId,readAt:null},{$set:{readAt:new Date()}},{new:true});
+  if(notification)emitNotificationUpdate(userId,{action:'read',notificationId:String(notification._id)});
+  return notification||Notification.findOne({_id:id,user:userId});
 }
 
 export async function markAllNotificationsRead(userId){
   const result=await Notification.updateMany({user:userId,readAt:null},{$set:{readAt:new Date()}});
-  return result.modifiedCount||0;
+  const count=result.modifiedCount||0;if(count)emitNotificationUpdate(userId,{action:'read-all',count});
+  return count;
 }
 
 function matchesAlert(job,alert){
@@ -47,7 +57,7 @@ export async function notifyMatchingJobAlerts(job){
   const allowed=new Set(profiles.map((profile)=>String(profile.user)));const userMap=new Map(users.map((user)=>[String(user._id),user]));
   const eligible=matched.filter((alert)=>allowed.has(String(alert.candidate))&&userMap.has(String(alert.candidate)));
   const docs=eligible.filter((alert)=>alert.inAppEnabled!==false).map((alert)=>({user:alert.candidate,type:'job_alert',title:`New role matching “${alert.name}”`,message:`${job.title} matches your saved job alert.`,link:`/jobs/${job.slug}`,metadata:{jobId:job._id,jobSlug:job.slug,alertId:alert._id}}));
-  if(docs.length)await Notification.insertMany(docs,{ordered:false});
+  if(docs.length){await Notification.insertMany(docs,{ordered:false});for(const userId of new Set(docs.map((doc)=>String(doc.user))))emitNotificationUpdate(userId,{action:'bulk-created',type:'job_alert'});}
   const jobUrl=`${process.env.CLIENT_URL}/jobs/${job.slug}`;
   await Promise.allSettled(eligible.filter((alert)=>alert.emailEnabled!==false).map((alert)=>{const user=userMap.get(String(alert.candidate));return sendEmail({to:user.email,subject:`New job match: ${job.title}`,html:brandedEmail({eyebrow:'Job alert',title:'A new role matches your alert',greeting:`Hello ${user.firstName},`,paragraphs:[`${job.title} matches your saved job alert “${alert.name}”.`,'Open the role to review the full job description and decide whether it fits your next move.'],buttonLabel:'View matching job',buttonUrl:jobUrl,note:'You can manage or pause job alerts from your candidate workspace.'}),text:`${job.title} matches your job alert “${alert.name}”. View: ${jobUrl}`});}));
   await JobAlert.updateMany({_id:{$in:eligible.map((alert)=>alert._id)}},{$set:{lastMatchedAt:new Date()}});
