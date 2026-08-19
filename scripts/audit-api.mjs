@@ -38,9 +38,6 @@ function normalizePath(value) {
   let result = String(value || '').trim();
   result = result.replace(/\$\{([^}]+)\}/g, (_match, expression) => {
     const name = String(expression || '').trim();
-    // Variables such as `base`, `safetyBase`, or `endpoint` commonly represent
-    // an already-composed route prefix (for example /candidate/safety). Mark
-    // them as a multi-segment wildcard instead of a normal single segment.
     return /(?:base|endpoint|path)$/i.test(name) ? ':dynamic*' : ':dynamic';
   });
   result = result.split('?')[0].split('#')[0];
@@ -62,8 +59,6 @@ function matchesRoute(candidate, route) {
     const other = right[rightIndex];
 
     if (segment === ':dynamic*') {
-      // A composed client prefix can contain one or more path segments. Try
-      // every viable span while keeping the remaining suffix exact.
       for (let nextRight = rightIndex + 1; nextRight <= right.length; nextRight += 1) {
         if (matchFrom(leftIndex + 1, nextRight)) return true;
       }
@@ -157,8 +152,6 @@ function readQuoted(text, start) {
 
 function callTail(text, start) {
   let parens = 1;
-  let braces = 0;
-  let brackets = 0;
   let quote = '';
   let escaped = false;
   for (let index = start; index < text.length; index += 1) {
@@ -174,18 +167,27 @@ function callTail(text, start) {
     else if (char === ')') {
       parens -= 1;
       if (parens === 0) return text.slice(start, index);
-    } else if (char === '{') braces += 1;
-    else if (char === '}') braces = Math.max(0, braces - 1);
-    else if (char === '[') brackets += 1;
-    else if (char === ']') brackets = Math.max(0, brackets - 1);
+    }
   }
   return text.slice(start);
+}
+
+function resolveSimpleIdentifier(text, identifier, beforeIndex) {
+  const prefix = text.slice(0, beforeIndex);
+  const declaration = new RegExp(`\\b(?:const|let|var)\\s+${identifier.replace(/[$]/g, '\\$&')}\\s*=\\s*(['\"\\`])`, 'g');
+  let found = null;
+  for (const match of prefix.matchAll(declaration)) found = match;
+  if (!found) return null;
+  const quoteIndex = found.index + found[0].length - 1;
+  const quoted = readQuoted(text, quoteIndex);
+  if (!quoted || quoted.end > beforeIndex) return null;
+  return quoted.raw;
 }
 
 function parseClientCalls() {
   const files = walk(clientRoot, (file) => /\.(?:js|jsx)$/.test(file));
   const calls = [];
-  let unresolved = 0;
+  const unresolved = [];
 
   for (const file of files) {
     const text = read(file);
@@ -195,38 +197,56 @@ function parseClientCalls() {
       if (start < 0) break;
       let argStart = start + 'apiRequest('.length;
       while (/\s/.test(text[argStart] || '')) argStart += 1;
+
+      let rawPath = null;
+      let argumentEnd = argStart;
       const quote = text[argStart];
-      if (!['\'', '"', '`'].includes(quote)) {
-        unresolved += 1;
-        cursor = argStart + 1;
-        continue;
-      }
-      const quoted = readQuoted(text, argStart);
-      if (!quoted) {
-        failures.push(`${path.relative(root, file)}:${lineAt(text, start)} contains an unterminated apiRequest path literal`);
-        break;
+
+      if (['\'', '"', '`'].includes(quote)) {
+        const quoted = readQuoted(text, argStart);
+        if (!quoted) {
+          failures.push(`${path.relative(root, file)}:${lineAt(text, start)} contains an unterminated apiRequest path literal`);
+          break;
+        }
+        rawPath = quoted.raw;
+        argumentEnd = quoted.end;
+      } else {
+        const identifierMatch = text.slice(argStart).match(/^([A-Za-z_$][\w$]*)/);
+        if (identifierMatch) {
+          const identifier = identifierMatch[1];
+          rawPath = resolveSimpleIdentifier(text, identifier, start);
+          argumentEnd = argStart + identifier.length;
+        }
       }
 
-      let next = quoted.end;
+      if (!rawPath) {
+        unresolved.push(`${path.relative(root, file)}:${lineAt(text, start)}`);
+        cursor = Math.max(argStart + 1, argumentEnd + 1);
+        continue;
+      }
+
+      let next = argumentEnd;
       while (/\s/.test(text[next] || '')) next += 1;
       if (text[next] && ![',', ')'].includes(text[next])) {
-        unresolved += 1;
-        cursor = quoted.end;
+        unresolved.push(`${path.relative(root, file)}:${lineAt(text, start)}`);
+        cursor = argumentEnd + 1;
         continue;
       }
 
-      const tail = callTail(text, quoted.end);
+      const tail = callTail(text, argumentEnd);
       const methodMatch = tail.match(/\bmethod\s*:\s*['"](GET|POST|PUT|PATCH|DELETE)['"]/i);
       calls.push({
         method: (methodMatch?.[1] || 'GET').toUpperCase(),
-        path: normalizePath(quoted.raw),
+        path: normalizePath(rawPath),
         source: `${path.relative(root, file)}:${lineAt(text, start)}`,
       });
-      cursor = quoted.end;
+      cursor = argumentEnd;
     }
   }
 
-  if (unresolved) warnings.push(`${unresolved} apiRequest call(s) use a variable/computed first argument and cannot be matched statically.`);
+  if (unresolved.length) {
+    warnings.push(`${unresolved.length} apiRequest call(s) remain too dynamic to match statically: ${unresolved.join(', ')}`);
+  }
   return calls;
 }
 
@@ -247,5 +267,5 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log(`API wiring audit passed. ${endpoints.length} server routes discovered; ${clientCalls.length} literal/template client calls matched.`);
+console.log(`API wiring audit passed. ${endpoints.length} server routes discovered; ${clientCalls.length} client calls matched.`);
 if (warnings.length) console.log(`API audit notes:\n${warnings.map((item) => `- ${item}`).join('\n')}`);
