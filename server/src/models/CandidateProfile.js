@@ -1,19 +1,19 @@
 import mongoose from 'mongoose';
 
 const experienceSchema = new mongoose.Schema({
-  title:{type:String,trim:true,maxlength:120}, company:{type:String,trim:true,maxlength:120}, location:{type:String,trim:true,maxlength:120}, startDate:{type:String,trim:true,maxlength:20}, endDate:{type:String,trim:true,maxlength:20}, current:{type:Boolean,default:false}, description:{type:String,trim:true,maxlength:1200}
+  title:{type:String,trim:true,maxlength:120}, company:{type:String,trim:true,maxlength:120}, location:{type:String,trim:true,maxlength:160}, startDate:{type:String,trim:true,maxlength:40}, endDate:{type:String,trim:true,maxlength:40}, current:{type:Boolean,default:false}, description:{type:String,trim:true,maxlength:1500}
 },{_id:true});
 const educationSchema = new mongoose.Schema({
-  institution:{type:String,trim:true,maxlength:160}, degree:{type:String,trim:true,maxlength:160}, field:{type:String,trim:true,maxlength:160}, startYear:{type:String,trim:true,maxlength:10}, endYear:{type:String,trim:true,maxlength:10}
+  institution:{type:String,trim:true,maxlength:160}, degree:{type:String,trim:true,maxlength:120}, field:{type:String,trim:true,maxlength:120}, startYear:{type:String,trim:true,maxlength:4}, endYear:{type:String,trim:true,maxlength:4}
 },{_id:true});
 
 const candidateProfileSchema = new mongoose.Schema({
   user:{type:mongoose.Schema.Types.ObjectId,ref:'User',required:true,unique:true,index:true},
-  headline:{type:String,trim:true,maxlength:160,default:''}, phone:{type:String,trim:true,maxlength:30,default:''}, location:{type:String,trim:true,maxlength:120,default:''}, bio:{type:String,trim:true,maxlength:2000,default:''},
+  headline:{type:String,trim:true,maxlength:160,default:''}, phone:{type:String,trim:true,maxlength:20,default:''}, location:{type:String,trim:true,maxlength:160,default:''}, bio:{type:String,trim:true,maxlength:2000,default:''},
   portfolioUrl:{type:String,trim:true,maxlength:500,default:''}, linkedinUrl:{type:String,trim:true,maxlength:500,default:''},
   skills:{type:[String],default:[]}, experience:{type:[experienceSchema],default:[]}, education:{type:[educationSchema],default:[]},
   preferences:{
-    jobTypes:{type:[String],default:[]}, workplaces:{type:[String],default:[]}, preferredLocations:{type:[String],default:[]}, minimumSalary:{type:String,trim:true,maxlength:60,default:''}, openToWork:{type:Boolean,default:true}
+    jobTypes:{type:[String],default:[]}, workplaces:{type:[String],default:[]}, preferredLocations:{type:[String],default:[]}, minimumSalary:{type:String,trim:true,maxlength:40,default:''}, openToWork:{type:Boolean,default:true}
   },
   privacy:{
     discoverableToRecruiters:{type:Boolean,default:true,index:true},
