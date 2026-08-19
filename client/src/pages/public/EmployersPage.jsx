@@ -1,4 +1,4 @@
-import { ArrowRight,BadgeCheck,BarChart3,BriefcaseBusiness,CheckCircle2,ClipboardList,CreditCard,MessagesSquare,Megaphone,ShieldCheck,Sparkles,UserRoundSearch,UsersRound } from 'lucide-react';
+import { ArrowRight,BadgeCheck,BarChart3,BriefcaseBusiness,ClipboardList,CreditCard,MessagesSquare,Megaphone,ShieldCheck,Sparkles,UserRoundSearch,UsersRound } from 'lucide-react';
 import { Link } from 'react-router-dom';
 const features=[
 {icon:BriefcaseBusiness,title:'Publish structured roles',copy:'Create detailed openings with responsibilities, requirements, compensation, workplace type, skills and application deadlines.'},
