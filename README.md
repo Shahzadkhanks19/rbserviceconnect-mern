@@ -96,7 +96,7 @@ In local development, if Resend is not configured, verification links are writte
 ```text
 client/   React/Vite application
 server/   Express/MongoDB API and Socket.IO server
-scripts/  Repository-level quality and UI audits
+scripts/  Repository-level UI, API wiring, and live smoke checks
 ```
 
 ## Local development
@@ -127,15 +127,43 @@ Default development addresses:
 - Client: `http://localhost:5173`
 - API/Socket.IO: `http://localhost:5000`
 
-## Quality check
+## Quality checks
 
-Run the full project check before committing or deploying:
+Run the deterministic project check before committing or deploying:
 
 ```bash
 npm run check
 ```
 
-The repository-level check runs the custom UI audit, client and server ESLint with zero warnings allowed, and the production build. The UI audit rejects browser-default dialogs/selects and unstyled native text controls so application surfaces stay aligned with the shared design system.
+This runs:
+- the custom UI audit;
+- the API wiring audit, which discovers mounted Express routes and verifies statically-resolvable client `apiRequest()` calls have matching server methods/paths;
+- client and server ESLint with zero warnings allowed;
+- the production client build.
+
+The UI audit rejects browser-default dialogs/selects and unstyled native text controls so application surfaces stay aligned with the shared design system.
+
+The API wiring audit is intentionally deterministic and does not require MongoDB, Resend, Cloudinary, Razorpay, or a running backend. It detects disconnected route files, duplicate API method/path registrations, missing health routing, and client calls that no longer match a server route. Computed API calls that cannot be resolved statically are reported as audit notes rather than silently treated as verified.
+
+For a live non-destructive backend smoke test, start the server and run:
+
+```bash
+npm run smoke:api
+```
+
+By default it tests `http://localhost:5000/api`. Override the target when required:
+
+```bash
+API_BASE_URL=https://api.example.com/api npm run smoke:api
+```
+
+To run the deterministic check followed by the live smoke test:
+
+```bash
+npm run check:live
+```
+
+The live smoke test verifies the health endpoint, public job/company reads, employer overview, and candidate/recruiter/admin authentication boundaries. It deliberately does not create accounts, modify hiring data, send email, charge/refund payments, or mutate production data. Full mutation/payment/email E2E coverage should use isolated seeded test accounts plus sandbox providers rather than the normal project check.
 
 ## Security and trust notes
 
