@@ -36,7 +36,13 @@ function clientPath(serverPath) {
 
 function normalizePath(value) {
   let result = String(value || '').trim();
-  result = result.replace(/\$\{[^}]+\}/g, ':dynamic');
+  result = result.replace(/\$\{([^}]+)\}/g, (_match, expression) => {
+    const name = String(expression || '').trim();
+    // Variables such as `base`, `safetyBase`, or `endpoint` commonly represent
+    // an already-composed route prefix (for example /candidate/safety). Mark
+    // them as a multi-segment wildcard instead of a normal single segment.
+    return /(?:base|endpoint|path)$/i.test(name) ? ':dynamic*' : ':dynamic';
+  });
   result = result.split('?')[0].split('#')[0];
   result = result.replace(/\/{2,}/g, '/');
   if (!result.startsWith('/')) result = `/${result}`;
@@ -47,11 +53,30 @@ function normalizePath(value) {
 function matchesRoute(candidate, route) {
   const left = normalizePath(candidate).split('/').filter(Boolean);
   const right = normalizePath(route).split('/').filter(Boolean);
-  if (left.length !== right.length) return false;
-  return left.every((segment, index) => {
-    const other = right[index];
-    return segment === other || segment.startsWith(':') || other.startsWith(':');
-  });
+
+  function matchFrom(leftIndex, rightIndex) {
+    if (leftIndex === left.length && rightIndex === right.length) return true;
+    if (leftIndex === left.length || rightIndex === right.length) return false;
+
+    const segment = left[leftIndex];
+    const other = right[rightIndex];
+
+    if (segment === ':dynamic*') {
+      // A composed client prefix can contain one or more path segments. Try
+      // every viable span while keeping the remaining suffix exact.
+      for (let nextRight = rightIndex + 1; nextRight <= right.length; nextRight += 1) {
+        if (matchFrom(leftIndex + 1, nextRight)) return true;
+      }
+      return false;
+    }
+
+    if (segment === other || segment.startsWith(':') || other.startsWith(':')) {
+      return matchFrom(leftIndex + 1, rightIndex + 1);
+    }
+    return false;
+  }
+
+  return matchFrom(0, 0);
 }
 
 function lineAt(text, index) {
