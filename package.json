@@ -20,5 +20,18 @@
     "install:all": "npm install --include=dev && npm install --include=dev --prefix client && npm install --include=dev --prefix server",
     "vercel:build": "npm install --include=dev --prefix client && npm install --include=dev --prefix server && npm run build --prefix client"
   },
+  "dependencies": {
+    "bcryptjs": "latest",
+    "compression": "latest",
+    "cookie-parser": "latest",
+    "cors": "latest",
+    "dotenv": "latest",
+    "express": "^5.1.0",
+    "express-rate-limit": "latest",
+    "helmet": "latest",
+    "jsonwebtoken": "latest",
+    "mongoose": "latest",
+    "socket.io": "^4.8.1"
+  },
   "devDependencies": {"concurrently": "latest"}
 }
