@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "bcryptjs": "latest",
+    "compression": "latest",
     "cookie-parser": "latest",
     "cors": "latest",
     "dotenv": "latest",
