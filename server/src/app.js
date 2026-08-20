@@ -1,3 +1,4 @@
+import compression from 'compression';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import express from 'express';
@@ -47,6 +48,7 @@ app.use(helmet({
     },
   },
 }));
+app.use(compression({threshold:1024}));
 app.use(cors({origin:clientUrl,credentials:true,methods:['GET','POST','PUT','PATCH','DELETE','OPTIONS'],allowedHeaders:['Content-Type','Accept','X-Razorpay-Signature','X-Razorpay-Event-Id']}));
 // Razorpay signs the exact raw request bytes. This route must stay before express.json().
 app.post('/api/webhooks/razorpay',express.raw({type:'application/json',limit:'1mb'}),handleRazorpayWebhook);
