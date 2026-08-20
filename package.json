@@ -2,9 +2,7 @@
   "name": "rbserviceconnect-mern",
   "private": true,
   "version": "0.1.0",
-  "engines": {
-    "node": ">=20.19.0"
-  },
+  "engines": {"node": ">=20.19.0"},
   "scripts": {
     "dev": "concurrently \"npm run dev --prefix client\" \"npm run dev --prefix server\"",
     "start": "npm run start --prefix server",
@@ -19,9 +17,8 @@
     "check:live": "npm run check && npm run smoke:api",
     "deploy:build": "npm run check",
     "deploy:start": "npm start",
-    "install:all": "npm install && npm install --prefix client && npm install --prefix server"
+    "install:all": "npm install && npm install --prefix client && npm install --prefix server",
+    "vercel:build": "npm install --prefix client && npm install --prefix server && npm run build --prefix client"
   },
-  "devDependencies": {
-    "concurrently": "latest"
-  }
+  "devDependencies": {"concurrently": "latest"}
 }
