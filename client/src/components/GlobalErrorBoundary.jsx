@@ -1,0 +1,3 @@
+import { Component } from 'react';
+import ErrorPage from '../pages/public/ErrorPage.jsx';
+export default class GlobalErrorBoundary extends Component{constructor(props){super(props);this.state={hasError:false};}static getDerivedStateFromError(){return{hasError:true};}componentDidCatch(error,info){if(import.meta.env.DEV)console.error('Unhandled application error',error,info);}retry=()=>{this.setState({hasError:false});window.location.reload();};render(){if(this.state.hasError)return <ErrorPage title="The application hit an unexpected error" message="Your data has not been intentionally changed. Reload the application to restore a clean session." onRetry={this.retry}/>;return this.props.children;}}
