@@ -12,6 +12,7 @@ export default defineConfig({
           groups:[
             {name:'react-vendor',test:/node_modules[\\/]react(?:-dom)?[\\/]|node_modules[\\/]react-router(?:-dom)?[\\/]/},
             {name:'icons-vendor',test:/node_modules[\\/]lucide-react[\\/]/},
+            {name:'animation-vendor',test:/node_modules[\\/]framer-motion[\\/]|node_modules[\\/]motion-dom[\\/]|node_modules[\\/]motion-utils[\\/]/},
             {name:'realtime-vendor',test:/node_modules[\\/]socket\.io-client[\\/]/},
           ],
         },
