@@ -11,3 +11,4 @@ Disallow: /register
 Disallow: /verify-email
 Disallow: /forgot-password
 Disallow: /reset-password
+Disallow: /error
