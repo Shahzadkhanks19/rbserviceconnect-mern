@@ -18,6 +18,7 @@ import recruiterRoutes from './routes/recruiterRoutes.js';
 const app=express();
 const clientUrl=process.env.CLIENT_URL;
 const production=process.env.NODE_ENV==='production';
+const vercel=Boolean(process.env.VERCEL);
 const publicBaseUrl=clientUrl?new URL(clientUrl).origin:'';
 const moduleDir=dirname(fileURLToPath(import.meta.url));
 const clientDist=resolve(moduleDir,'../../client/dist');
@@ -25,7 +26,8 @@ const limiter=(limit,message)=>rateLimit({windowMs:15*60*1000,limit,standardHead
 const noStore=(_req,res,next)=>{res.set('Cache-Control','no-store, private');res.set('Pragma','no-cache');next();};
 const sitemapPaths=['/','/jobs','/companies','/employers','/about','/contact','/faq','/privacy','/terms','/cookies','/accessibility'];
 
-if(production&&!existsSync(clientDist))throw new Error('Production client build is missing. Run npm run deploy:build before starting the server.');
+// Persistent Node deployments serve Vite from Express. On Vercel the CDN serves client/dist directly.
+if(production&&!vercel&&!existsSync(clientDist))throw new Error('Production client build is missing. Run npm run deploy:build before starting the server.');
 
 app.disable('x-powered-by');
 if(production)app.set('trust proxy',1);
@@ -33,28 +35,11 @@ app.use(helmet({
   crossOriginResourcePolicy:{policy:'cross-origin'},
   referrerPolicy:{policy:'strict-origin-when-cross-origin'},
   hsts:production?{maxAge:31536000,includeSubDomains:true,preload:false}:false,
-  contentSecurityPolicy:{
-    directives:{
-      defaultSrc:["'self'"],
-      baseUri:["'self'"],
-      fontSrc:["'self'",'https:','data:'],
-      formAction:["'self'"],
-      frameAncestors:["'self'"],
-      imgSrc:["'self'",'data:','blob:','https://media.githubusercontent.com','https://res.cloudinary.com'],
-      objectSrc:["'none'"],
-      scriptSrc:["'self'",'https://checkout.razorpay.com'],
-      connectSrc:["'self'",'https:','wss:','ws:'],
-      frameSrc:["'self'",'https://api.razorpay.com','https://checkout.razorpay.com'],
-      styleSrc:["'self'","'unsafe-inline'"],
-      upgradeInsecureRequests:production?[]:null,
-    },
-  },
+  contentSecurityPolicy:{directives:{defaultSrc:["'self'"],baseUri:["'self'"],fontSrc:["'self'",'https:','data:'],formAction:["'self'"],frameAncestors:["'self'"],imgSrc:["'self'",'data:','blob:','https://media.githubusercontent.com','https://res.cloudinary.com'],objectSrc:["'none'"],scriptSrc:["'self'",'https://checkout.razorpay.com'],connectSrc:["'self'",'https:','wss:','ws:'],frameSrc:["'self'",'https://api.razorpay.com','https://checkout.razorpay.com'],styleSrc:["'self'","'unsafe-inline'"],upgradeInsecureRequests:production?[]:null}},
 }));
 app.use(compression({threshold:1024}));
 app.use(cors({origin:clientUrl,credentials:true,methods:['GET','POST','PUT','PATCH','DELETE','OPTIONS'],allowedHeaders:['Content-Type','Accept','X-Razorpay-Signature','X-Razorpay-Event-Id']}));
-// Razorpay signs the exact raw request bytes. This route must stay before express.json().
 app.post('/api/webhooks/razorpay',express.raw({type:'application/json',limit:'1mb'}),handleRazorpayWebhook);
-// Resume/message uploads are base64 encoded and independently type/size validated by their controllers.
 app.use(express.json({limit:'7mb'}));
 app.use(express.urlencoded({extended:false,limit:'1mb'}));
 app.use(cookieParser());
@@ -66,7 +51,6 @@ app.use('/api/auth/resend-verification',limiter(5,'Too many verification email r
 app.use('/api/auth/forgot-password',limiter(5,'Too many password reset requests. Please wait before trying again.'));
 app.use('/api/auth/reset-password',limiter(8,'Too many password reset attempts. Please wait before trying again.'));
 app.use('/api/contact',limiter(8,'Too many contact submissions. Please wait before trying again.'));
-// Authentication and workspace responses can contain account, hiring, messaging, or billing data and must not be stored by intermediaries.
 app.use(['/api/auth','/api/candidate','/api/recruiter','/api/admin'],noStore);
 app.get('/api/health',(_req,res)=>res.set('Cache-Control','no-store').json({status:'ok',service:'rbserviceconnect-api'}));
 app.use('/api/auth',authRoutes);
@@ -76,44 +60,12 @@ app.use('/api/candidate',candidateRoutes);
 app.use('/api/recruiter',recruiterRoutes);
 app.use('/api/admin',adminRoutes);
 
-// Production SEO endpoints derive their origin from CLIENT_URL so no deployment-specific domain is hard-coded.
-app.get('/robots.txt',(_req,res)=>res.type('text/plain').set('Cache-Control','public, max-age=3600').send([
-  'User-agent: *',
-  'Allow: /',
-  'Disallow: /candidate',
-  'Disallow: /candidate/',
-  'Disallow: /recruiter',
-  'Disallow: /recruiter/',
-  'Disallow: /admin',
-  'Disallow: /admin/',
-  'Disallow: /login',
-  'Disallow: /register',
-  'Disallow: /verify-email',
-  'Disallow: /forgot-password',
-  'Disallow: /reset-password',
-  'Disallow: /error',
-  publicBaseUrl?`Sitemap: ${publicBaseUrl}/sitemap.xml`:'',
-].filter(Boolean).join('\n')));
-app.get('/sitemap.xml',(_req,res)=>{
-  const urls=sitemapPaths.map((route)=>`  <url><loc>${publicBaseUrl}${route}</loc></url>`).join('\n');
-  const xml=`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>`;
-  return res.type('application/xml').set('Cache-Control','public, max-age=3600').send(xml);
-});
+app.get('/robots.txt',(_req,res)=>res.type('text/plain').set('Cache-Control','public, max-age=3600').send(['User-agent: *','Allow: /','Disallow: /candidate','Disallow: /candidate/','Disallow: /recruiter','Disallow: /recruiter/','Disallow: /admin','Disallow: /admin/','Disallow: /login','Disallow: /register','Disallow: /verify-email','Disallow: /forgot-password','Disallow: /reset-password','Disallow: /error',publicBaseUrl?`Sitemap: ${publicBaseUrl}/sitemap.xml`:''].filter(Boolean).join('\n')));
+app.get('/sitemap.xml',(_req,res)=>{const urls=sitemapPaths.map((route)=>`  <url><loc>${publicBaseUrl}${route}</loc></url>`).join('\n');const xml=`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>`;return res.type('application/xml').set('Cache-Control','public, max-age=3600').send(xml);});
 
-// Production is served as one same-origin Node service. Vite's hashed assets are immutable; HTML is always revalidated.
-if(production){
-  app.use(express.static(clientDist,{
-    index:false,
-    setHeaders:(res,filePath)=>{
-      if(filePath.includes(`${sep}assets${sep}`))res.set('Cache-Control','public, max-age=31536000, immutable');
-      else res.set('Cache-Control','public, max-age=3600');
-    },
-  }));
-  app.use((req,res,next)=>{
-    if(req.method!=='GET'||req.path.startsWith('/api')||req.path.startsWith('/socket.io')||!req.accepts('html'))return next();
-    res.set('Cache-Control','no-cache');
-    return res.sendFile(join(clientDist,'index.html'));
-  });
+if(production&&!vercel){
+  app.use(express.static(clientDist,{index:false,setHeaders:(res,filePath)=>{if(filePath.includes(`${sep}assets${sep}`))res.set('Cache-Control','public, max-age=31536000, immutable');else res.set('Cache-Control','public, max-age=3600');}}));
+  app.use((req,res,next)=>{if(req.method!=='GET'||req.path.startsWith('/api')||req.path.startsWith('/socket.io')||!req.accepts('html'))return next();res.set('Cache-Control','no-cache');return res.sendFile(join(clientDist,'index.html'));});
 }
 
 app.use((req,res)=>res.status(404).json({message:`Route not found: ${req.method} ${req.originalUrl}`}));
