@@ -18,10 +18,12 @@ import recruiterRoutes from './routes/recruiterRoutes.js';
 const app=express();
 const clientUrl=process.env.CLIENT_URL;
 const production=process.env.NODE_ENV==='production';
+const publicBaseUrl=clientUrl?new URL(clientUrl).origin:'';
 const moduleDir=dirname(fileURLToPath(import.meta.url));
 const clientDist=resolve(moduleDir,'../../client/dist');
 const limiter=(limit,message)=>rateLimit({windowMs:15*60*1000,limit,standardHeaders:'draft-8',legacyHeaders:false,message:{message},skipSuccessfulRequests:false});
 const noStore=(_req,res,next)=>{res.set('Cache-Control','no-store, private');res.set('Pragma','no-cache');next();};
+const sitemapPaths=['/','/jobs','/companies','/employers','/about','/contact','/faq','/privacy','/terms','/cookies','/accessibility'];
 
 if(production&&!existsSync(clientDist))throw new Error('Production client build is missing. Run npm run deploy:build before starting the server.');
 
@@ -73,6 +75,30 @@ app.use('/api/public',publicRoutes);
 app.use('/api/candidate',candidateRoutes);
 app.use('/api/recruiter',recruiterRoutes);
 app.use('/api/admin',adminRoutes);
+
+// Production SEO endpoints derive their origin from CLIENT_URL so no deployment-specific domain is hard-coded.
+app.get('/robots.txt',(_req,res)=>res.type('text/plain').set('Cache-Control','public, max-age=3600').send([
+  'User-agent: *',
+  'Allow: /',
+  'Disallow: /candidate',
+  'Disallow: /candidate/',
+  'Disallow: /recruiter',
+  'Disallow: /recruiter/',
+  'Disallow: /admin',
+  'Disallow: /admin/',
+  'Disallow: /login',
+  'Disallow: /register',
+  'Disallow: /verify-email',
+  'Disallow: /forgot-password',
+  'Disallow: /reset-password',
+  'Disallow: /error',
+  publicBaseUrl?`Sitemap: ${publicBaseUrl}/sitemap.xml`:'',
+].filter(Boolean).join('\n')));
+app.get('/sitemap.xml',(_req,res)=>{
+  const urls=sitemapPaths.map((route)=>`  <url><loc>${publicBaseUrl}${route}</loc></url>`).join('\n');
+  const xml=`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>`;
+  return res.type('application/xml').set('Cache-Control','public, max-age=3600').send(xml);
+});
 
 // Production is served as one same-origin Node service. Vite's hashed assets are immutable; HTML is always revalidated.
 if(production){
