@@ -17,8 +17,8 @@
     "check:live": "npm run check && npm run smoke:api",
     "deploy:build": "npm run check",
     "deploy:start": "npm start",
-    "install:all": "npm install && npm install --prefix client && npm install --prefix server",
-    "vercel:build": "npm install --prefix client && npm install --prefix server && npm run build --prefix client"
+    "install:all": "npm install --include=dev && npm install --include=dev --prefix client && npm install --include=dev --prefix server",
+    "vercel:build": "npm install --include=dev --prefix client && npm install --include=dev --prefix server && npm run build --prefix client"
   },
   "devDependencies": {"concurrently": "latest"}
 }
