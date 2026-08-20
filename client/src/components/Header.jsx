@@ -21,7 +21,6 @@ export default function Header({sessionUser=null}){
   const [discoveredUser,setDiscoveredUser]=useState(null);
   const [badges,setBadges]=useState({messages:0,notifications:0});
   const user=sessionUser||discoveredUser;
-  const closeMenu=()=>setIsOpen(false);
   const closeAllMenus=()=>{setIsOpen(false);setProfileOpen(false);};
 
   useEffect(()=>{
