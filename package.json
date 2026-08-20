@@ -2,6 +2,7 @@
   "name": "rbserviceconnect-mern",
   "private": true,
   "version": "0.1.0",
+  "type": "module",
   "engines": {"node": ">=20.19.0"},
   "scripts": {
     "dev": "concurrently \"npm run dev --prefix client\" \"npm run dev --prefix server\"",
