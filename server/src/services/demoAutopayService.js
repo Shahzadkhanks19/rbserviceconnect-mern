@@ -8,6 +8,7 @@ import { createNotification } from './notificationService.js';
 const demoId=(prefix)=>`${prefix}_${crypto.randomBytes(10).toString('hex')}`;
 const firstOpen=(fee)=>fee.billing.installments.filter((item)=>!['paid','waived'].includes(item.status)).sort((a,b)=>a.number-b.number)[0];
 const shouldFail=()=>String(process.env.DEMO_AUTOPAY_FORCE_FAILURE||'false').toLowerCase()==='true';
+const demoWorkerEnabled=()=>process.env.NODE_ENV!=='production'||String(process.env.ENABLE_DEMO_AUTOPAY||'false').toLowerCase()==='true';
 
 async function notifyFailure(fee,installment,reason){
   const candidate=await SuccessFee.findById(fee._id).populate('candidate','firstName email').populate('job','title').lean();
@@ -33,14 +34,13 @@ export async function executeDemoAutopay(feeId,now=new Date()){
     await notifyFailure(fee,installment,fee.billing.autopay.lastFailureReason);return transaction;
   }
   const paymentId=demoId('demo_payment');
-  // Reuse the same audited reconciliation path as gateway payments, then relabel the provider as demo-only.
   const paid=await finalizeCapturedBillingPayment({transactionId:transaction._id,orderId:transaction.providerOrderId,paymentId,paidAt:now,method:'gateway'});
   paid.provider='demo-autopay';paid.notes='Portfolio AutoPay simulation. No real financial account was debited.';await paid.save();
   const updated=await SuccessFee.findById(fee._id);refreshBillingSchedule(updated,now);const next=firstOpen(updated);updated.billing.autopay.lastAttemptAt=now;updated.billing.autopay.lastAttemptStatus='paid';updated.billing.autopay.lastFailureReason='';updated.billing.autopay.nextDebitAt=next?.dueAt||null;if(!next)updated.billing.autopay.status='expired';await updated.save();return paid;
 }
 
 export function startDemoAutopayWorker(){
-  if(process.env.NODE_ENV==='test')return()=>{};
+  if(process.env.NODE_ENV==='test'||!demoWorkerEnabled())return()=>{};
   let running=false;
   const execute=async()=>{if(running)return;running=true;try{const due=await SuccessFee.find({'billing.autopay.mode':'demo','billing.autopay.status':'active','billing.autopay.nextDebitAt':{$ne:null,$lte:new Date()},status:{$nin:['paid','waived','cancelled']}}).select('_id').limit(25).lean();for(const item of due){try{await executeDemoAutopay(item._id);}catch(error){console.error('Demo AutoPay execution failed:',error.message);}}}catch(error){console.error('Demo AutoPay worker failed:',error);}finally{running=false;}};
   const timer=setInterval(execute,60*60*1000);timer.unref?.();setTimeout(execute,5000).unref?.();return()=>clearInterval(timer);
