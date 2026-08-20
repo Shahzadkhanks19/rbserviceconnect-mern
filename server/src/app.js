@@ -22,6 +22,8 @@ const clientDist=resolve(moduleDir,'../../client/dist');
 const limiter=(limit,message)=>rateLimit({windowMs:15*60*1000,limit,standardHeaders:'draft-8',legacyHeaders:false,message:{message},skipSuccessfulRequests:false});
 const noStore=(_req,res,next)=>{res.set('Cache-Control','no-store, private');res.set('Pragma','no-cache');next();};
 
+if(production&&!existsSync(clientDist))throw new Error('Production client build is missing. Run npm run deploy:build before starting the server.');
+
 app.disable('x-powered-by');
 if(production)app.set('trust proxy',1);
 app.use(helmet({
@@ -70,8 +72,8 @@ app.use('/api/candidate',candidateRoutes);
 app.use('/api/recruiter',recruiterRoutes);
 app.use('/api/admin',adminRoutes);
 
-// A production build can be deployed as one Node service. Vite's hashed assets are immutable; HTML is always revalidated.
-if(production&&existsSync(clientDist)){
+// Production is served as one same-origin Node service. Vite's hashed assets are immutable; HTML is always revalidated.
+if(production){
   app.use(express.static(clientDist,{
     index:false,
     setHeaders:(res,filePath)=>{
